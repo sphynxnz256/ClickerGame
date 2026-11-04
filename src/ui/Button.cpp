@@ -5,26 +5,18 @@
 Button::Button(float pos_x, float pos_y, float width, float height,
 	sf::Color idle_color, sf::Color hover_color, 
 	std::string text, sf::Font& font, unsigned character_size)
-	: idleColor(idle_color), hoverColor(hover_color)
+	: idleColor(idle_color), hoverColor(hover_color), buttonText(font, text, character_size)
 {
-	this->shape.setPosition(pos_x, pos_y);
+	this->shape.setPosition({pos_x, pos_y});
 	this->shape.setSize(sf::Vector2f(width, height));
 	this->shape.setFillColor(this->idleColor);
 
-	this->buttonText.setFont(font);
-	this->buttonText.setString(text);
-	this->buttonText.setCharacterSize(character_size);
 	this->buttonText.setFillColor(sf::Color::White);
 
 	//center text on button
 	sf::FloatRect text_bounds = buttonText.getLocalBounds();
-	this->buttonText.setOrigin(text_bounds.left + text_bounds.width / 2.f,
-		text_bounds.top + text_bounds.height / 2.f);
-	this->buttonText.setPosition(pos_x + width / 2.f, pos_y + height / 2.f);
-}
-
-Button::Button()
-{
+	this->buttonText.setOrigin(text_bounds.position + text_bounds.size / 2.f);
+	this->buttonText.setPosition({pos_x + width / 2.f, pos_y + height / 2.f});
 }
 
 //getters
@@ -46,7 +38,7 @@ bool Button::isMouseOver(const sf::Vector2f& mouse_pos)
 
 bool Button::isClicked(const sf::Vector2f& mouse_pos)
 {
-	return isMouseOver(mouse_pos) && sf::Mouse::isButtonPressed(sf::Mouse::Left);
+	return isMouseOver(mouse_pos) && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 }
 
 void Button::render(sf::RenderTarget& target, const sf::Vector2f& mouse_pos)

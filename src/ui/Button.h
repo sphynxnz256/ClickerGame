@@ -14,8 +14,6 @@ public:
 		sf::Color idle_color, sf::Color hover_color,
 		std::string text, sf::Font& font, unsigned character_size);
 
-	Button();
-
 	//getters
 	sf::FloatRect getGlobalBounds();
 	sf::Vector2f getPosition();

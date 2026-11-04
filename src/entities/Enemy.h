@@ -6,8 +6,8 @@ class Enemy
 {
 private:
 	//private variables
-	sf::Sprite sprite;
 	sf::Texture texture;
+	sf::Sprite sprite;
 	RNG& rng;
 	std::unordered_map<int, std::string> textureAddressMap;
 	std::unordered_map<int, std::shared_ptr<sf::Texture>> textureMap;

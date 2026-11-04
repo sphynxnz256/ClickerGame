@@ -24,10 +24,10 @@ void Animator::initSmokeTexture()
 
 void Animator::initSmokeSprite()
 {
-	this->smokeSprite.setTexture(this->smokeTextureSheet);
-	this->currentFrame = sf::IntRect(0, 0, 150, 150);
-	this->smokeSprite.setTextureRect(sf::IntRect(0, 0, 150, 150));
-	this->smokeSprite.setScale(2.f, 2.f);
+	this->smokeSprite.setTexture(this->smokeTextureSheet, true);
+	this->currentFrame = sf::IntRect({0, 0}, {150, 150});
+	this->smokeSprite.setTextureRect(sf::IntRect({0, 0}, {150, 150}));
+	this->smokeSprite.setScale({2.f, 2.f});
 }
 
 void Animator::updateDeathAnimation()
@@ -50,7 +50,7 @@ void Animator::updateDeathAnimation()
 	}
 	else
 	{
-		this->deathSprite->setScale(0.f, 0.f);
+		this->deathSprite->setScale({0.f, 0.f});
 		this->animationEnd = true;
 	}
 }
@@ -72,16 +72,16 @@ void Animator::updateEscapeAnimation()
 		if(this->timeElapsed >= this->frameDuration)
 		{
 			this->timeElapsed = 0.f;
-			if (this->currentFrame.left < 1050)
+			if (this->currentFrame.position.x < 1050)
 			{
-				this->currentFrame.left += 150;
+				this->currentFrame.position.x += 150;
 				this->smokeSprite.setTextureRect(this->currentFrame);
 			}
 			else
 			{
 				this->animationEnd = true;
 				this->timeElapsed = 0.f;
-				this->currentFrame = sf::IntRect(0, 0, 150, 150);
+				this->currentFrame = sf::IntRect({0, 0}, {150, 150});
 
 			}
 		}
@@ -105,7 +105,7 @@ void Animator::renderEscapeAnimation(sf::RenderTarget& target, bool play_escape)
 }
 
 //constructor
-Animator::Animator(sf::Texture& coin_texture)
+Animator::Animator(sf::Texture& coin_texture) : smokeSprite(smokeTextureSheet)
 {
 	this->initVariables();
 	this->initSmokeTexture();
@@ -136,12 +136,12 @@ const bool Animator::getAnimationEnd() const
 //setters
 void Animator::setDeathSpritePosition(const float x, const float y)
 {
-	this->deathSprite->setPosition(x, y);
+	this->deathSprite->setPosition({x, y});
 }
 
 void Animator::setSmokeSpritePosition(const float x, const float y)
 {
-	this->smokeSprite.setPosition(x, y);
+	this->smokeSprite.setPosition({x, y});
 }
 
 void Animator::setSprite(sf::Sprite* sprite)

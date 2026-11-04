@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <random>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <sstream>
 #include <iomanip>

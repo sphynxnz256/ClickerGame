@@ -6,16 +6,15 @@ void Coin::initVariables(const sf::Vector2u& target_size)
 {	
 	this->coinValue = 1;
 	this->endPoint = sf::Vector2f(static_cast<float>(this->rng.generateRandomNum(20, 
-		target_size.x - sprite.getGlobalBounds().width - 20)),
+		target_size.x - sprite.getGlobalBounds().size.x - 20)),
 		static_cast<float>(target_size.y) - 150.f);
 }
 
 void Coin::initSprite(std::shared_ptr<sf::Texture> shared_texture)
 {
-	this->sprite.setTexture(*shared_texture);
-	this->sprite.setScale(0.1f, 0.1f);
-	this->sprite.setPosition(sf::Vector2f(this->startPoint.x - this->sprite.getGlobalBounds().width / 2, 
-		this->startPoint.y - this->sprite.getGlobalBounds().height / 2));
+	this->sprite.setScale({0.1f, 0.1f});
+	this->sprite.setPosition(sf::Vector2f(this->startPoint.x - this->sprite.getGlobalBounds().size.x / 2, 
+		this->startPoint.y - this->sprite.getGlobalBounds().size.y / 2));
 }
 
 void Coin::initControlPoint()
@@ -99,7 +98,7 @@ void Coin::updateLocation()
 //constructor
 Coin::Coin(RNG& rng, const sf::Vector2u& target_size, std::shared_ptr<sf::Texture> shared_texture,
 	sf::Vector2f start_point)
-	: rng(rng), texture(shared_texture), startPoint(start_point)
+	: texture(shared_texture), sprite(*shared_texture), rng(rng), startPoint(start_point)
 {
 	this->initSprite(shared_texture);
 	this->initVariables(target_size);

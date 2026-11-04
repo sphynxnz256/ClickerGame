@@ -43,12 +43,12 @@ void Enemy::initTextures()
 
 void Enemy::initSprite()
 {
-	this->sprite.setTexture(this->texture);
-	this->sprite.setScale(this->spriteScale.first, this->spriteScale.second);
+	this->sprite.setTexture(this->texture, true);
+	this->sprite.setScale({this->spriteScale.first, this->spriteScale.second});
 }
 
 //constructor
-Enemy::Enemy(RNG& rng) : rng(rng)
+Enemy::Enemy(RNG& rng) : sprite(texture), rng(rng)
 {	
 	this->initVariables();
 	this->initTextures();
@@ -94,7 +94,7 @@ const std::pair<int, int> Enemy::getCoinsToDrop() const
 //setters
 void Enemy::setPosition(const float x, const float y)
 {
-	this->sprite.setPosition(x, y);
+	this->sprite.setPosition({x, y});
 }
 
 void Enemy::takeDamage(const float damage_taken)
@@ -111,7 +111,7 @@ void Enemy::resetEnemy()
 	this->hpCurrent = this->hpMax;
 	this->texture = *this->textureMap[rng.generateRandomNum(1, 5)];
 	this->sprite.setTexture(this->texture);
-	this->sprite.setScale(spriteScale.first, spriteScale.second);
+	this->sprite.setScale({spriteScale.first, spriteScale.second});
 }
 
 bool Enemy::isDead()
