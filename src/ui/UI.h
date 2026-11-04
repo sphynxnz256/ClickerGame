@@ -15,8 +15,8 @@ private:
 	sf::Text damageText;
 	sf::Text upgradeCostText;
 
-	Button upgradeButton;
-	Button retreatButton;
+	std::optional<Button> upgradeButton;
+	std::optional<Button> retreatButton;
 
 	sf::Text countdownText;
 	sf::Clock dtClock;

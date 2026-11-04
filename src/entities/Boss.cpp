@@ -20,11 +20,11 @@ void Boss::initTextures()
 
 void Boss::initSprite()
 {
-	this->sprite.setTexture(this->texture);
-	this->sprite.setScale(spriteScale.first, spriteScale.second);
+	this->sprite.setTexture(this->texture, true);
+	this->sprite.setScale({spriteScale.first, spriteScale.second});
 }
 //constructor
-Boss::Boss()
+Boss::Boss() : sprite(texture)
 {
 	this->initVariables();
 	this->initTextures();
@@ -70,7 +70,7 @@ const std::pair<int, int> Boss::getCoinsToDrop() const
 //setters
 void Boss::setPosition(const float x, const float y)
 {
-	this->sprite.setPosition(x, y);
+	this->sprite.setPosition({x, y});
 }
 
 void Boss::takeDamage(const float damage_taken)
@@ -86,7 +86,7 @@ void Boss::takeDamage(const float damage_taken)
 void Boss::resetBoss()
 {
 	this->hpCurrent = this->hpMax;
-	this->sprite.setScale(spriteScale.first, spriteScale.second);
+	this->sprite.setScale({spriteScale.first, spriteScale.second});
 }
 
 void Boss::render(sf::RenderTarget& target)

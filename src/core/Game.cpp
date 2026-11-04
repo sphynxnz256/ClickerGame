@@ -7,7 +7,7 @@
 void Game::initWindow()
 {
 	//creates the game window
-	this->window.create(sf::VideoMode(800, 600), "Clicker Game", sf::Style::Close | sf::Style::Titlebar);
+	this->window.create(sf::VideoMode({800, 600}), "Clicker Game", sf::Style::Close | sf::Style::Titlebar);
 }
 
 void Game::initPlayer()
@@ -22,8 +22,8 @@ void Game::initEnemy()
 	//stores enemy state
 	this->enemy = new Enemy(rng);
 	this->enemy->setPosition(
-		this->window.getSize().x /2 - this->enemy->getGlobalBounds().width / 2, 
-		this->window.getSize().y / 2 - this->enemy->getGlobalBounds().height / 2);
+		this->window.getSize().x /2 - this->enemy->getGlobalBounds().size.x / 2, 
+		this->window.getSize().y / 2 - this->enemy->getGlobalBounds().size.y / 2);
 }
 
 void Game::initBoss()
@@ -31,8 +31,8 @@ void Game::initBoss()
 	this->killCounter = 0;
 	this->boss = new Boss();
 	this->boss->setPosition( 
-		this->window.getSize().x / 2 - this->boss->getGlobalBounds().width / 2, 
-		this->window.getSize().y / 2 - this->boss->getGlobalBounds().height / 2); 
+		this->window.getSize().x / 2 - this->boss->getGlobalBounds().size.x / 2, 
+		this->window.getSize().y / 2 - this->boss->getGlobalBounds().size.y / 2); 
 	this->bossActive = false;
 }
 
@@ -42,8 +42,8 @@ void Game::initAnimator()
 	this->playDeathAnimation = false;
 	this->playEscapeAnimation = false;
 	this->animator->setSmokeSpritePosition(
-		this->window.getSize().x / 2 - this->animator->getSmokeSpriteGlobalBounds().width / 2,
-		this->window.getSize().y / 2 - this->animator->getSmokeSpriteGlobalBounds().height / 2);
+		this->window.getSize().x / 2 - this->animator->getSmokeSpriteGlobalBounds().size.x / 2,
+		this->window.getSize().y / 2 - this->animator->getSmokeSpriteGlobalBounds().size.y / 2);
 }
 
 void Game::initBackground()
@@ -53,7 +53,7 @@ void Game::initBackground()
 	{
 		std::cout << "ERROR::GAME::INITBACKGROUND::Can't load beach.png";
 	}
-	this->background.setTexture(backgroundTexture);
+	this->background.setTexture(backgroundTexture, true);
 }
 
 void Game::initCoins()
@@ -68,17 +68,17 @@ void Game::initCoins()
 void Game::initUI()
 {
 	//create an hp bar and set its position above the enemy
-	this->ui = new UI(static_cast<float>(this->window.getSize().x), this->enemy->getGlobalBounds().top,
+	this->ui = new UI(static_cast<float>(this->window.getSize().x), this->enemy->getGlobalBounds().position.y,
 		this->player->getCoins(), this->player->getDamage(), this->player->getUpgradeCost(),
-		this->boss->getGlobalBounds().top);
+		this->boss->getGlobalBounds().position.y);
 }
 
 void Game::polledEvents()
 {
 	//this lets us close the window using the x button
-	while (this->window.pollEvent(this->event))
+	while (const std::optional event = this->window.pollEvent())
 	{
-		if (this->event.type == sf::Event::Closed)
+		if (event->is<sf::Event::Closed>())
 		{
 			window.close();
 		}
@@ -99,7 +99,7 @@ void Game::updateCombat()
 		}
 		/*this checks to see if the player is attacking and determines how much damage the enemy takes. it then
 		also updates the hp bar in the ui*/
-		else if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+		else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 		{
 			if (!this->mouseHeld)
 			{
@@ -132,8 +132,8 @@ void Game::updateCombat()
 
 			//coins drop
 			this->dropCoins(this->boss->getCoinsToDrop(), sf::Vector2f(
-				this->boss->getPosition().x + this->boss->getGlobalBounds().width / 2,
-				this->boss->getPosition().y + this->boss->getGlobalBounds().height / 2));
+				this->boss->getPosition().x + this->boss->getGlobalBounds().size.x / 2,
+				this->boss->getPosition().y + this->boss->getGlobalBounds().size.y / 2));
 
 			this->bossDeath();
 		}
@@ -145,8 +145,8 @@ void Game::updateCombat()
 
 			//coins drop
 			this->dropCoins(this->enemy->getCoinsToDrop(), sf::Vector2f(
-				this->enemy->getPosition().x + this->enemy->getGlobalBounds().width / 2,
-				this->enemy->getPosition().y + this->enemy->getGlobalBounds().height / 2));
+				this->enemy->getPosition().x + this->enemy->getGlobalBounds().size.x / 2,
+				this->enemy->getPosition().y + this->enemy->getGlobalBounds().size.y / 2));
 
 			this->enemyDeath();
 		}
@@ -204,7 +204,7 @@ void Game::bossEscape()
 		this->ui->setHpBarMaxLength(this->bossActive); 
 		this->ui->setHpBarLength(this->enemy->getHpCurrent(), this->enemy->getHpMax()); 
 		this->ui->setHpBarColor(this->enemy->getHpCurrent(), this->enemy->getHpMax()); 
-		this->ui->setHpBarPosition(static_cast<float>(this->window.getSize().x), this->enemy->getGlobalBounds().top);
+		this->ui->setHpBarPosition(static_cast<float>(this->window.getSize().x), this->enemy->getGlobalBounds().position.y);
 	}
 }
 
@@ -223,8 +223,8 @@ void Game::enemyDeath()
 		//set up new random enemy
 		this->enemy->resetEnemy();
 		this->enemy->setPosition(
-			this->window.getSize().x / 2 - this->enemy->getGlobalBounds().width / 2,
-			this->window.getSize().y / 2 - this->enemy->getGlobalBounds().height / 2);
+			this->window.getSize().x / 2 - this->enemy->getGlobalBounds().size.x / 2,
+			this->window.getSize().y / 2 - this->enemy->getGlobalBounds().size.y / 2);
 		
 		//reset health bars for new enemy
 		this->ui->setHpBarLength(this->enemy->getHpCurrent(), this->enemy->getHpMax()); 
@@ -257,7 +257,7 @@ void Game::setUpBoss()
 
 	//set hp bars for boss
 	this->ui->setHpBarMaxLength(this->bossActive);
-	this->ui->setHpBarPosition(static_cast<float>(this->window.getSize().x), this->boss->getGlobalBounds().top);
+	this->ui->setHpBarPosition(static_cast<float>(this->window.getSize().x), this->boss->getGlobalBounds().position.y);
 	this->ui->setHpBarLength(this->enemy->getHpCurrent(), this->enemy->getHpMax()); 
 }
 
@@ -277,14 +277,14 @@ void Game::bossDeath()
 		this->bossActive = false;
 		this->boss->resetBoss();		
 		this->boss->setPosition(
-			this->window.getSize().x / 2 - this->boss->getGlobalBounds().width / 2,
-			this->window.getSize().y / 2 - this->boss->getGlobalBounds().height / 2);
+			this->window.getSize().x / 2 - this->boss->getGlobalBounds().size.x / 2,
+			this->window.getSize().y / 2 - this->boss->getGlobalBounds().size.y / 2);
 
 		//set the hp bar for next enemy
 		this->ui->setHpBarMaxLength(this->bossActive);
 		this->ui->setHpBarLength(this->boss->getHpCurrent(), this->boss->getHpMax());
 		this->ui->setHpBarColor(this->boss->getHpCurrent(), this->boss->getHpMax());
-		this->ui->setHpBarPosition(static_cast<float>(this->window.getSize().x), this->enemy->getGlobalBounds().top);
+		this->ui->setHpBarPosition(static_cast<float>(this->window.getSize().x), this->enemy->getGlobalBounds().position.y);
 	}
 }
 
@@ -304,7 +304,7 @@ void Game::updateUI()
 		this->retreat();
 	}
 
-	this->ui->update(this->bossActive, static_cast<float>(this->window.getSize().x), this->boss->getGlobalBounds().top);
+	this->ui->update(this->bossActive, static_cast<float>(this->window.getSize().x), this->boss->getGlobalBounds().position.y);
 }
 
 void Game::upgradeDamage()
@@ -347,8 +347,8 @@ void Game::updateAnimator()
 	if (this->playDeathAnimation)
 	{
 		this->animator->update("death");
-		this->animator->setDeathSpritePosition(this->window.getSize().x / 2 - this->animator->getDeathSpriteGlobalBounds().width / 2,
-			this->window.getSize().y / 2 - this->animator->getDeathSpriteGlobalBounds().height / 2);
+		this->animator->setDeathSpritePosition(this->window.getSize().x / 2 - this->animator->getDeathSpriteGlobalBounds().size.x / 2,
+			this->window.getSize().y / 2 - this->animator->getDeathSpriteGlobalBounds().size.y / 2);
 	}
 	if (this->playEscapeAnimation)
 	{
@@ -364,7 +364,7 @@ void Game::updateCoins()
 	}
 
 	static bool click_processed = false;
-	if(sf::Mouse::isButtonPressed(sf::Mouse::Left)) 
+	if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) 
 	{
 		if (!click_processed)
 		{
@@ -438,7 +438,7 @@ void Game::renderUI()
 }
 
 //constructor
-Game::Game(RNG& rng) : rng(rng)
+Game::Game(RNG& rng) : rng(rng), background(backgroundTexture)
 {
 	this->initWindow();
 	this->initBackground();

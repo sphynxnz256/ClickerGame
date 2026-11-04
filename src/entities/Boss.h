@@ -4,8 +4,8 @@ class Boss
 {
 private:
 	//private variables
-	sf::Sprite sprite;
 	sf::Texture texture;
+	sf::Sprite sprite;
 
 	float hpMax;
 	float hpCurrent;

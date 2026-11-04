@@ -13,7 +13,6 @@ class Game
 private:
 	//private variables
 	sf::RenderWindow window;
-	sf::Event event;
 
 	Player* player;
 	Enemy* enemy;
