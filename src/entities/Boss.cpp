@@ -4,15 +4,15 @@
 //private functions
 void Boss::initVariables()
 {
-	this->hpMax = 250;
-	this->hpCurrent = this->hpMax;
-	this->coinsToDrop = std::make_pair(10, 20);
-	this->spriteScale = std::make_pair(0.5f, 0.5f);
+	m_hpMax = 250;
+	m_hpCurrent = m_hpMax;
+	m_coinsToDrop = std::make_pair(10, 20);
+	m_spriteScale = std::make_pair(0.5f, 0.5f);
 }
 
 void Boss::initTextures()
 {
-	if (!this->texture.loadFromFile("textures/enemies/jellyfish.png"))
+	if (!m_texture.loadFromFile("textures/enemies/jellyfish.png"))
 	{
 		std::cout << "ERROR::BOSS::INITTEXTURE::Failed to load jellyfish.png\n";
 	}
@@ -20,15 +20,15 @@ void Boss::initTextures()
 
 void Boss::initSprite()
 {
-	this->sprite.setTexture(this->texture, true);
-	this->sprite.setScale({spriteScale.first, spriteScale.second});
+	m_sprite.setTexture(m_texture, true);
+	m_sprite.setScale({m_spriteScale.first, m_spriteScale.second});
 }
 //constructor
-Boss::Boss() : sprite(texture)
+Boss::Boss() : m_sprite(m_texture)
 {
-	this->initVariables();
-	this->initTextures();
-	this->initSprite();
+	initVariables();
+	initTextures();
+	initSprite();
 }
 
 //deconstructor
@@ -39,59 +39,59 @@ Boss::~Boss()
 //getters
 const sf::Vector2f Boss::getPosition() const
 {
-	return sprite.getPosition(); 
+	return m_sprite.getPosition(); 
 }
 
 const sf::FloatRect Boss::getGlobalBounds() const
 {
-	return sprite.getGlobalBounds(); 
+	return m_sprite.getGlobalBounds(); 
 }
 
 const float Boss::getHpMax() const
 {
-	return this->hpMax; 
+	return m_hpMax; 
 }
 
 const float Boss::getHpCurrent() const
 {
-	return this->hpCurrent;
+	return m_hpCurrent;
 }
 
 sf::Sprite* Boss::getSprite()
 {
-	return &this->sprite;
+	return &m_sprite;
 }
 
 const std::pair<int, int> Boss::getCoinsToDrop() const
 {
-	return this->coinsToDrop;
+	return m_coinsToDrop;
 }
 
 //setters
 void Boss::setPosition(const float x, const float y)
 {
-	this->sprite.setPosition({x, y});
+	m_sprite.setPosition({x, y});
 }
 
-void Boss::takeDamage(const float damage_taken)
+void Boss::takeDamage(const float damageTaken)
 {
-	this->hpCurrent -= damage_taken; 
-	if (this->hpCurrent < 0)
+	m_hpCurrent -= damageTaken; 
+	if (m_hpCurrent < 0)
 	{
-		this->hpCurrent = 0;
+		m_hpCurrent = 0;
 	}
 }
 
 //public functions
 void Boss::resetBoss()
 {
-	this->hpCurrent = this->hpMax;
-	this->sprite.setScale({spriteScale.first, spriteScale.second});
+	m_hpCurrent = m_hpMax;
+	m_sprite.setScale({m_spriteScale.first, m_spriteScale.second});
 }
 
 void Boss::render(sf::RenderTarget& target)
 {
-	target.draw(this->sprite);
+	target.draw(m_sprite);
 }
 
 

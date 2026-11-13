@@ -6,27 +6,27 @@ class Coin
 {
 private:
 	//private variables
-	std::shared_ptr<sf::Texture> texture;
-	sf::Sprite sprite;
-	RNG& rng;
-	int coinValue;
+	std::shared_ptr<sf::Texture> m_texture;
+	sf::Sprite m_sprite;
+	RNG& m_rng;
+	int m_coinValue;
 
-	sf::Clock dtClock;
-	float timeElapsed;
-	float frameDuration;
-	float deltaTime;
+	sf::Clock m_dtClock;
+	float m_timeElapsed;
+	float m_frameDuration;
+	float m_deltaTime;
 
-	sf::Vector2f startPoint;
-	sf::Vector2f endPoint;
-	sf::Vector2f controlPoint;
-	float animationSpeed;
-	float distanceToTravel;
-	bool animationEnded;
-	bool animationFirstFrame;
+	sf::Vector2f m_startPoint;
+	sf::Vector2f m_endPoint;
+	sf::Vector2f m_controlPoint;
+	float m_animationSpeed;
+	float m_distanceToTravel;
+	bool m_animationEnded;
+	bool m_animationFirstFrame;
 
 	//private functions
-	void initVariables(const sf::Vector2u& target_size);
-	void initSprite(std::shared_ptr<sf::Texture> shared_texture);
+	void initVariables(const sf::Vector2u& targetSize);
+	void initSprite(std::shared_ptr<sf::Texture> sharedTexture);
 	void initControlPoint();
 	void initAnimationSpeed();
 	void initDistanceToTravel();
@@ -35,15 +35,15 @@ private:
 
 public:
 	//constructor
-	Coin(RNG& rng, const sf::Vector2u& target_size, std::shared_ptr<sf::Texture> shared_texture,
-		sf::Vector2f start_point);
+	Coin(RNG& rng, const sf::Vector2u& targetSize, std::shared_ptr<sf::Texture> sharedTexture,
+		sf::Vector2f startPoint);
 
 	//getters
 	int getCoinValue();
 	sf::Vector2f getPosition();
 
 	//public functions
-	bool isMouseOver(const sf::Vector2f& mouse_pos);
+	bool isMouseOver(const sf::Vector2f& mousePos);
 	bool checkPosition();
 
 	void update();

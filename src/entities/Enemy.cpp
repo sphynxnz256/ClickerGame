@@ -6,53 +6,53 @@
 //private functions	
 void Enemy::initVariables()
 {
-	this->hpMax = 10.f;
-	this->hpCurrent = this->hpMax;
-	this->coinsToDrop = std::make_pair(1, 2);
-	this->spriteScale = std::make_pair(0.25f, 0.25f);
+	m_hpMax = 10.f;
+	m_hpCurrent = m_hpMax;
+	m_coinsToDrop = std::make_pair(1, 2);
+	m_spriteScale = std::make_pair(0.25f, 0.25f);
 }
 
 void Enemy::initTextures()
 {
 	//store addresses of textures in map	
-	this->textureAddressMap[1] = "textures/enemies/slime.png";
-	this->textureAddressMap[2] = "textures/enemies/crab.png";
-	this->textureAddressMap[3] = "textures/enemies/rat.png";
-	this->textureAddressMap[4] = "textures/enemies/raven.png";
-	this->textureAddressMap[5] = "textures/enemies/wasp.png";
+	m_textureAddressMap[1] = "textures/enemies/slime.png";
+	m_textureAddressMap[2] = "textures/enemies/crab.png";
+	m_textureAddressMap[3] = "textures/enemies/rat.png";
+	m_textureAddressMap[4] = "textures/enemies/raven.png";
+	m_textureAddressMap[5] = "textures/enemies/wasp.png";
 
 	//preload textures and store them in a map
-	for (const auto& pair : this->textureAddressMap)
+	for (const auto& pair : m_textureAddressMap)
 	{
-		int unique_number = pair.first;
-		const std::string& texture_address = pair.second;
+		int uniqueNumber = pair.first;
+		const std::string& textureAddress = pair.second;
 
 		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
-		if (texture->loadFromFile(texture_address))
+		if (texture->loadFromFile(textureAddress))
 		{
-			this->textureMap[unique_number] = texture;
+			m_textureMap[uniqueNumber] = texture;
 		}
 		else
 		{
-			std::cout << "ERROR::ENEMY::INITTEXTURE::Failed to load " << texture_address << '\n';
+			std::cout << "ERROR::ENEMY::INITTEXTURE::Failed to load " << textureAddress << '\n';
 		}
 	}
 
-	this->texture = *this->textureMap[this->rng.generateRandomNum(1, 5)];
+	m_texture = *m_textureMap[m_rng.generateRandomNum(1, 5)];
 }
 
 void Enemy::initSprite()
 {
-	this->sprite.setTexture(this->texture, true);
-	this->sprite.setScale({this->spriteScale.first, this->spriteScale.second});
+	m_sprite.setTexture(m_texture, true);
+	m_sprite.setScale({m_spriteScale.first, m_spriteScale.second});
 }
 
 //constructor
-Enemy::Enemy(RNG& rng) : sprite(texture), rng(rng)
+Enemy::Enemy(RNG& rng) : m_sprite(m_texture), m_rng(rng)
 {	
-	this->initVariables();
-	this->initTextures();
-	this->initSprite();
+	initVariables();
+	initTextures();
+	initSprite();
 }
 
 //deconstructor
@@ -63,60 +63,60 @@ Enemy::~Enemy()
 //getters
 const sf::Vector2f Enemy::getPosition() const
 {
-	return sprite.getPosition();
+	return m_sprite.getPosition();
 }
 
 const sf::FloatRect Enemy::getGlobalBounds() const
 {
-	return sprite.getGlobalBounds();
+	return m_sprite.getGlobalBounds();
 }
 
 const float Enemy::getHpMax() const
 {
-	return this->hpMax;
+	return m_hpMax;
 }
 
 const float Enemy::getHpCurrent() const
 {
-	return this->hpCurrent;
+	return m_hpCurrent;
 }
 
 sf::Sprite* Enemy::getSprite()
 {
-	return &this->sprite;
+	return &m_sprite;
 }
 
 const std::pair<int, int> Enemy::getCoinsToDrop() const
 {
-	return this->coinsToDrop;
+	return m_coinsToDrop;
 }
 
 //setters
 void Enemy::setPosition(const float x, const float y)
 {
-	this->sprite.setPosition({x, y});
+	m_sprite.setPosition({x, y});
 }
 
-void Enemy::takeDamage(const float damage_taken)
+void Enemy::takeDamage(const float damageTaken)
 {
-	this->hpCurrent -= damage_taken;
-	if (this->hpCurrent < 0)
+	m_hpCurrent -= damageTaken;
+	if (m_hpCurrent < 0)
 	{
-		this->hpCurrent = 0;
+		m_hpCurrent = 0;
 	}
 }
 
 void Enemy::resetEnemy()
 {
-	this->hpCurrent = this->hpMax;
-	this->texture = *this->textureMap[rng.generateRandomNum(1, 5)];
-	this->sprite.setTexture(this->texture);
-	this->sprite.setScale({spriteScale.first, spriteScale.second});
+	m_hpCurrent = m_hpMax;
+	m_texture = *m_textureMap[m_rng.generateRandomNum(1, 5)];
+	m_sprite.setTexture(m_texture);
+	m_sprite.setScale({m_spriteScale.first, m_spriteScale.second});
 }
 
 bool Enemy::isDead()
 {
-	if (this->getHpCurrent() <= 0.f)
+	if (getHpCurrent() <= 0.f)
 	{
 		return true;
 	}
@@ -125,5 +125,5 @@ bool Enemy::isDead()
 
 void Enemy::render(sf::RenderTarget& target)
 {
-	target.draw(this->sprite);
+	target.draw(m_sprite);
 }

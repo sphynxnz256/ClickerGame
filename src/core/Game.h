@@ -12,33 +12,33 @@ class Game
 {
 private:
 	//private variables
-	sf::RenderWindow window;
+	sf::RenderWindow m_window;
 
-	Player* player;
-	Enemy* enemy;
-	Boss* boss;
-	UI* ui;
+	Player* m_player;
+	Enemy* m_enemy;
+	Boss* m_boss;
+	UI* m_ui;
 
-	Animator* animator;
-	bool playDeathAnimation;
-	bool playEscapeAnimation;
-	bool playCoinAnimation;
+	Animator* m_animator;
+	bool m_playDeathAnimation;
+	bool m_playEscapeAnimation;
+	bool m_playCoinAnimation;
 
-	RNG& rng;
+	RNG& m_rng;
 
-	bool mouseHeld;
-	sf::Vector2f mousePosition;
+	bool m_mouseHeld;
+	sf::Vector2f m_mousePosition;
 
-	sf::Texture backgroundTexture;
-	sf::Sprite background;
+	sf::Texture m_backgroundTexture;
+	sf::Sprite m_background;
 
-	int killCounter;
-	bool bossActive;
-	int coinsToDrop;
-	std::vector<Coin> coinsVector;
-	std::shared_ptr<sf::Texture> sharedCoinTexture;
-	sf::Vector2f coinStart;
-	sf::Vector2f coinEnd;
+	int m_killCounter;
+	bool m_bossActive;
+	int m_coinsToDrop;
+	std::vector<Coin> m_coinsVector;
+	std::shared_ptr<sf::Texture> m_sharedCoinTexture;
+	sf::Vector2f m_coinStart;
+	sf::Vector2f m_coinEnd;
 
 	//private initiation functions
 	void initWindow();
@@ -70,7 +70,7 @@ private:
 	void enemyTakeDamage();
 	void bossEscape();
 	void enemyDeath();
-	void dropCoins(std::pair<int, int> coins_to_drop, sf::Vector2f coin_start);
+	void dropCoins(std::pair<int, int> coinsToDrop, sf::Vector2f coinStart);
 	void setUpBoss();
 	void bossDeath();
 	void upgradeDamage();

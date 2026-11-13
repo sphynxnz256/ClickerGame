@@ -3,11 +3,11 @@ class Player
 {
 private:
 	//private variables
-	float damage;
-	float attackCDMax;
-	float attackCD;
-	int coins;
-	int upgradeCost;
+	float m_damage;
+	float m_attackCDMax;
+	float m_attackCD;
+	int m_coins;
+	int m_upgradeCost;
 
 	//private functions
 	void initVariables();
@@ -25,7 +25,7 @@ public:
 
 	//setters
 	void upgradeDamage();
-	void addCoins(int coins_to_add);
+	void addCoins(int coinsToAdd);
 
 	//public functions
 	bool canUpgrade();

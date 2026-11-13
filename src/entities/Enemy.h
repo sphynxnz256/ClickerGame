@@ -6,18 +6,18 @@ class Enemy
 {
 private:
 	//private variables
-	sf::Texture texture;
-	sf::Sprite sprite;
-	RNG& rng;
-	std::unordered_map<int, std::string> textureAddressMap;
-	std::unordered_map<int, std::shared_ptr<sf::Texture>> textureMap;
-	int textureNumber;
+	sf::Texture m_texture;
+	sf::Sprite m_sprite;
+	RNG& m_rng;
+	std::unordered_map<int, std::string> m_textureAddressMap;
+	std::unordered_map<int, std::shared_ptr<sf::Texture>> m_textureMap;
+	int m_textureNumber;
 
-	float hpMax;
-	float hpCurrent;
-	std::pair<float, float> spriteScale;
+	float m_hpMax;
+	float m_hpCurrent;
+	std::pair<float, float> m_spriteScale;
 
-	std::pair<int, int> coinsToDrop;
+	std::pair<int, int> m_coinsToDrop;
 
 	//private functions
 	void initVariables();
@@ -40,7 +40,7 @@ public:
 
 	//setters
 	void setPosition(const float x, const float y);
-	void takeDamage(const float damage_taken);
+	void takeDamage(const float damageTaken);
 	
 	//public functions
 	void resetEnemy();

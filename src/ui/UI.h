@@ -6,46 +6,46 @@
 class UI
 {
 private:
-	sf::RectangleShape hpMaxBar;
-	sf::RectangleShape hpCurrentBar;	
+	sf::RectangleShape m_hpMaxBar;
+	sf::RectangleShape m_hpCurrentBar;	
 
-	sf::Font font;
+	sf::Font m_font;
 
-	sf::Text coinsText;
-	sf::Text damageText;
-	sf::Text upgradeCostText;
+	sf::Text m_coinsText;
+	sf::Text m_damageText;
+	sf::Text m_upgradeCostText;
 
-	std::optional<Button> upgradeButton;
-	std::optional<Button> retreatButton;
+	std::optional<Button> m_upgradeButton;
+	std::optional<Button> m_retreatButton;
 
-	sf::Text countdownText;
-	sf::Clock dtClock;
-	float timeLeft;
-	bool firstFrame;
-	float dt;
+	sf::Text m_countdownText;
+	sf::Clock m_dtClock;
+	float m_timeLeft;
+	bool m_firstFrame;
+	float m_dt;
 
 	//private initiation functions
-	void initHpBar(float target_x, float enemy_top);
+	void initHpBar(float targetX, float enemyTop);
 	void initFonts();
-	void initText(int coins, float damage, int upgrade_cost);
+	void initText(int coins, float damage, int upgradeCost);
 	void initUpgradeButton();
 	void initRetreatButton();
-	void initCountdown(float target_x, float boss_top);
+	void initCountdown(float targetX, float bossTop);
 
 	//private update functions
-	void updateCountdown(float target_x, float boss_top);
+	void updateCountdown(float targetX, float bossTop);
 
 	//private render functions
-	void renderHpBar(sf::RenderTarget& target, bool escape_animation, bool death_animation);
+	void renderHpBar(sf::RenderTarget& target, bool escapeAnimation, bool deathAnimation);
 	void renderPlayerStats(sf::RenderTarget& target);
-	void renderUpradeButton(sf::RenderTarget& target, const sf::Vector2f& mouse_pos);
-	void renderEscapeButton(sf::RenderTarget& target, const sf::Vector2f& mouse_pos,
-		bool boss_active, bool boss_escape, bool death_animation);
-	void renderCountdown(sf::RenderTarget& target, bool boss_active, bool escape_animation, bool death_animation);
+	void renderUpradeButton(sf::RenderTarget& target, const sf::Vector2f& mousePos);
+	void renderEscapeButton(sf::RenderTarget& target, const sf::Vector2f& mousePos,
+		bool bossActive, bool bossEscape, bool deathAnimation);
+	void renderCountdown(sf::RenderTarget& target, bool bossActive, bool escapeAnimation, bool deathAnimation);
 
 public:
 	//constructor
-	UI(float target_x, float enemy_top, int coins, float damage, int upgrade_cost, float boss_top);
+	UI(float targetX, float enemyTop, int coins, float damage, int upgradeCost, float bossTop);
 	//deconstructor
 	~UI();
 
@@ -53,21 +53,21 @@ public:
 	const float getTimeLeft();
 
 	//setters
-	void setHpBarPosition(const float target_x, const float enemy_top);
-	void setHpBarColor(const float current_hp,const float max_hp);
-	void setHpBarLength(const float current_hp, const float max_hp);
-	void setHpBarMaxLength(const bool boss_active);
+	void setHpBarPosition(const float targetX, const float enemyTop);
+	void setHpBarColor(const float currentHp,const float maxHp);
+	void setHpBarLength(const float currentHp, const float maxHp);
+	void setHpBarMaxLength(const bool bossActive);
 	void setCoinsText(const int coins);
 	void setDamageText(const float damage);
-	void setUpgradeCostText(const int upgrade_cost);
-	void setCountdownPosition(float target_x, float boss_top);
+	void setUpgradeCostText(const int upgradeCost);
+	void setCountdownPosition(float targetX, float bossTop);
 
 	//public functions
-	bool upgradeButtonCLicked(sf::Vector2f& mouse_pos);
-	bool retreatButtonCLicked(sf::Vector2f& mouse_pos);
+	bool upgradeButtonCLicked(sf::Vector2f& mousePos);
+	bool retreatButtonCLicked(sf::Vector2f& mousePos);
 	void resetTimer();
-	void update(const bool boss_active, float target_x, float boss_top);
-	void render(sf::RenderTarget& target, const sf::Vector2f& mouse_pos,
-		bool boss_active, bool boss_escape, bool death_animation);
+	void update(const bool bossActive, float targetX, float bossTop);
+	void render(sf::RenderTarget& target, const sf::Vector2f& mousePos,
+		bool bossActive, bool bossEscape, bool deathAnimation);
 };
 

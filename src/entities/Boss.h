@@ -4,14 +4,14 @@ class Boss
 {
 private:
 	//private variables
-	sf::Texture texture;
-	sf::Sprite sprite;
+	sf::Texture m_texture;
+	sf::Sprite m_sprite;
 
-	float hpMax;
-	float hpCurrent;
-	std::pair<float, float> spriteScale;
+	float m_hpMax;
+	float m_hpCurrent;
+	std::pair<float, float> m_spriteScale;
 
-	std::pair<int, int> coinsToDrop;
+	std::pair<int, int> m_coinsToDrop;
 
 	//private functions
 	void initVariables();
@@ -34,13 +34,13 @@ public:
 
 	//setters
 	void setPosition(const float x, const float y);
-	void takeDamage(const float damage_taken);
+	void takeDamage(const float damageTaken);
 
 	//public functions
 	void resetBoss();
 	bool isDead()
 	{
-		if (this->hpCurrent <= 0.f)
+		if (m_hpCurrent <= 0.f)
 		{
 			return true;
 		}
