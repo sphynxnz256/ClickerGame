@@ -27,6 +27,7 @@ add_executable(ClickerGame
     src/graphics/Animator.cpp
     src/ui/Button.cpp
     src/ui/UI.cpp
+    src/view/NumberFormat.cpp
     src/view/TextureCache.cpp
 )
 

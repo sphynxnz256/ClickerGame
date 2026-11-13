@@ -43,12 +43,12 @@ const sf::FloatRect Enemy::getGlobalBounds() const
 	return m_sprite.getGlobalBounds();
 }
 
-const float Enemy::getHpMax() const
+const double Enemy::getHpMax() const
 {
 	return m_type->hpMax;
 }
 
-const float Enemy::getHpCurrent() const
+const double Enemy::getHpCurrent() const
 {
 	return m_hpCurrent;
 }
@@ -74,10 +74,10 @@ void Enemy::setPosition(const float x, const float y)
 	m_sprite.setPosition({x, y});
 }
 
-void Enemy::takeDamage(const float damageTaken)
+void Enemy::takeDamage(const double damageTaken)
 {
 	m_hpCurrent -= damageTaken;
-	if (m_hpCurrent < 0)
+	if (m_hpCurrent < 0.0)
 	{
 		m_hpCurrent = 0;
 	}
@@ -93,7 +93,7 @@ void Enemy::spawn(const EnemyType& type)
 
 bool Enemy::isDead()
 {
-	if (getHpCurrent() <= 0.f)
+	if (getHpCurrent() <= 0.0)
 	{
 		return true;
 	}

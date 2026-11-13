@@ -24,7 +24,7 @@ private:
 	//private initiation functions
 	void initHpBar(float targetX, float enemyTop);
 	void initFonts();
-	void initText(int coins, float damage, int upgradeCost);
+	void initText(double coins, double damage, double upgradeCost);
 	void initUpgradeButton();
 	void initRetreatButton();
 	void initCountdown(float targetX, float bossTop);
@@ -42,7 +42,7 @@ private:
 
 public:
 	//constructor
-	UI(float targetX, float enemyTop, int coins, float damage, int upgradeCost, float bossTop);
+	UI(float targetX, float enemyTop, double coins, double damage, double upgradeCost, float bossTop);
 	//deconstructor
 	~UI();
 
@@ -51,12 +51,12 @@ public:
 
 	//setters
 	void setHpBarPosition(const float targetX, const float enemyTop);
-	void setHpBarColor(const float currentHp,const float maxHp);
-	void setHpBarLength(const float currentHp, const float maxHp);
+	void setHpBarColor(const double currentHp, const double maxHp);
+	void setHpBarLength(const double currentHp, const double maxHp);
 	void setHpBarMaxLength(const bool bossActive);
-	void setCoinsText(const int coins);
-	void setDamageText(const float damage);
-	void setUpgradeCostText(const int upgradeCost);
+	void setCoinsText(const double coins);
+	void setDamageText(const double damage);
+	void setUpgradeCostText(const double upgradeCost);
 	void setCountdownPosition(float targetX, float bossTop);
 
 	//public functions

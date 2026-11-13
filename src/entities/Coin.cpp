@@ -4,7 +4,7 @@
 //private functions
 void Coin::initVariables(const sf::Vector2u& targetSize)
 {	
-	m_coinValue = 1;
+	m_coinValue = 1.0;
 	m_endPoint = sf::Vector2f(static_cast<float>(m_rng.generateRandomNum(20, 
 		targetSize.x - m_sprite.getGlobalBounds().size.x - 20)),
 		static_cast<float>(targetSize.y) - 150.f);
@@ -108,7 +108,7 @@ Coin::Coin(RNG& rng, const sf::Vector2u& targetSize, const sf::Texture& texture,
 }
 
 //getters
-int Coin::getCoinValue()
+double Coin::getCoinValue()
 {
 	return m_coinValue;
 }

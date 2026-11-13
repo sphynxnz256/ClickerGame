@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ui/UI.h"
+#include "view/NumberFormat.h"
 
 /*the ui class displays info useful to the user*/
 
@@ -25,14 +26,14 @@ void UI::initFonts()
 	}
 }
 
-void UI::initText(int coins, float damage, int upgradeCost)
+void UI::initText(double coins, double damage, double upgradeCost)
 {
 	//displays the amount of coins the player as earned
 	m_coinsText.setCharacterSize(24);
 	m_coinsText.setOutlineColor(sf::Color::Black);
 	m_coinsText.setOutlineThickness(1.f);
 	std::stringstream ssCoins;
-	ssCoins << "Coins: " << coins;
+	ssCoins << "Coins: " << formatNumber(coins);
 	m_coinsText.setString(ssCoins.str());
 	m_coinsText.setPosition({20.f, 20.f});
 	
@@ -41,7 +42,7 @@ void UI::initText(int coins, float damage, int upgradeCost)
 	m_damageText.setOutlineColor(sf::Color::Black);
 	m_damageText.setOutlineThickness(1.f);
 	std::stringstream ssDamage;
-	ssDamage << "Damage: " << static_cast<int>(damage);
+	ssDamage << "Damage: " << formatNumber(damage);
 	m_damageText.setString(ssDamage.str());
 	m_damageText.setPosition({20.f, m_coinsText.getPosition().y + m_coinsText.getGlobalBounds().size.y + 10.f});
 
@@ -50,7 +51,7 @@ void UI::initText(int coins, float damage, int upgradeCost)
 	m_upgradeCostText.setOutlineColor(sf::Color::Black);
 	m_upgradeCostText.setOutlineThickness(1.f);
 	std::stringstream ssUpgradeCost;
-	ssUpgradeCost << "Upgrade damage cost: " << upgradeCost << "Coins";
+	ssUpgradeCost << "Upgrade damage cost: " << formatNumber(upgradeCost) << "Coins";
 	m_upgradeCostText.setString(ssUpgradeCost.str());
 
 	//displays timer for boss fight
@@ -169,7 +170,7 @@ void UI::renderCountdown(sf::RenderTarget& target, bool bossActive, bool escapeA
 }
 
 //constructors
-UI::UI(float targetX, float enemyTop, int coins, float damage, int upgradeCost, float bossTop)
+UI::UI(float targetX, float enemyTop, double coins, double damage, double upgradeCost, float bossTop)
 	: m_coinsText(m_font), m_damageText(m_font), m_upgradeCostText(m_font), m_countdownText(m_font)
 {
 	initHpBar(targetX, enemyTop); 
@@ -199,7 +200,7 @@ void UI::setHpBarPosition(const float targetX, const float enemyTop)
 	m_hpCurrentBar.setPosition({xPosition, yPosition});
 }
 
-void UI::setHpBarColor(const float currentHp, const float maxHp)
+void UI::setHpBarColor(const double currentHp, const double maxHp)
 {
 	if (currentHp > 0.5f * maxHp)
 	{
@@ -211,9 +212,9 @@ void UI::setHpBarColor(const float currentHp, const float maxHp)
 	}
 }
 
-void UI::setHpBarLength(const float currentHp, const float maxHp)
+void UI::setHpBarLength(const double currentHp, const double maxHp)
 {
-	m_hpCurrentBar.setSize(sf::Vector2f(m_hpMaxBar.getSize().x * currentHp / maxHp, m_hpMaxBar.getSize().y));
+	m_hpCurrentBar.setSize(sf::Vector2f(static_cast<float>(m_hpMaxBar.getSize().x * currentHp / maxHp), m_hpMaxBar.getSize().y));
 }
 
 void UI::setHpBarMaxLength(const bool bossActive)
@@ -228,24 +229,24 @@ void UI::setHpBarMaxLength(const bool bossActive)
 	}
 }
 
-void UI::setCoinsText(const int coins)
+void UI::setCoinsText(const double coins)
 {
 	std::stringstream ss;
-	ss << "Coins: " << coins << '\n';
+	ss << "Coins: " << formatNumber(coins) << '\n';
 	m_coinsText.setString(ss.str());
 }
 
-void UI::setDamageText(const float damage)
+void UI::setDamageText(const double damage)
 {
 	std::stringstream ss;
-	ss << "Damage: " << static_cast<int>(damage) << '\n';
+	ss << "Damage: " << formatNumber(damage) << '\n';
 	m_damageText.setString(ss.str());
 }
 
-void UI::setUpgradeCostText(const int upgradeCost)
+void UI::setUpgradeCostText(const double upgradeCost)
 {
 	std::stringstream ss;
-	ss << "Upgrade damage cost: " << upgradeCost << " Coins\n";
+	ss << "Upgrade damage cost: " << formatNumber(upgradeCost) << " Coins\n";
 	m_upgradeCostText.setString(ss.str());
 }
 

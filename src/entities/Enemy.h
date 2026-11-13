@@ -12,7 +12,7 @@ private:
 	RNG& m_rng;
 	TextureCache& m_textures;
 	sf::Sprite m_sprite;
-	float m_hpCurrent;
+	double m_hpCurrent;
 
 	//private functions
 	void initVariables();
@@ -28,15 +28,15 @@ public:
 	//getters
 	const sf::Vector2f getPosition() const;
 	const sf::FloatRect getGlobalBounds() const;
-	const float getHpMax() const;
-	const float getHpCurrent() const;
+	const double getHpMax() const;
+	const double getHpCurrent() const;
 	sf::Sprite* getSprite();
 	const std::pair<int, int> getCoinsToDrop() const;
 	const EnemyType& getType() const;
 
 	//setters
 	void setPosition(const float x, const float y);
-	void takeDamage(const float damageTaken);
+	void takeDamage(const double damageTaken);
 	
 	//public functions
 	void spawn(const EnemyType& type);

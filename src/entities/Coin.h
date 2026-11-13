@@ -8,7 +8,7 @@ private:
 	//private variables
 	sf::Sprite m_sprite;
 	RNG& m_rng;
-	int m_coinValue;
+	double m_coinValue;
 
 	float m_timeElapsed;
 	float m_frameDuration;
@@ -36,7 +36,7 @@ public:
 		sf::Vector2f startPoint);
 
 	//getters
-	int getCoinValue();
+	double getCoinValue();
 	sf::Vector2f getPosition();
 
 	//public functions

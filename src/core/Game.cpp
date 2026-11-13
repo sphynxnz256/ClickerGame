@@ -242,9 +242,9 @@ void Game::upgradeDamage()
 	PlayerState& player = m_state.player;
 	if (player.coins >= player.upgradeCost)
 	{
-		player.damage *= 2.f;
+		player.damage *= 2.0;
 		player.coins -= player.upgradeCost;
-		player.upgradeCost *= 2;
+		player.upgradeCost *= 2.0;
 		m_ui->setDamageText(player.damage);
 		m_ui->setCoinsText(player.coins);
 		m_ui->setUpgradeCostText(player.upgradeCost);
