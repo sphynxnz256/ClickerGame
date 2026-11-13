@@ -6,7 +6,6 @@ class Coin
 {
 private:
 	//private variables
-	std::shared_ptr<sf::Texture> m_texture;
 	sf::Sprite m_sprite;
 	RNG& m_rng;
 	int m_coinValue;
@@ -24,7 +23,7 @@ private:
 
 	//private functions
 	void initVariables(const sf::Vector2u& targetSize);
-	void initSprite(std::shared_ptr<sf::Texture> sharedTexture);
+	void initSprite();
 	void initControlPoint();
 	void initAnimationSpeed();
 	void initDistanceToTravel();
@@ -33,7 +32,7 @@ private:
 
 public:
 	//constructor
-	Coin(RNG& rng, const sf::Vector2u& targetSize, std::shared_ptr<sf::Texture> sharedTexture,
+	Coin(RNG& rng, const sf::Vector2u& targetSize, const sf::Texture& texture,
 		sf::Vector2f startPoint);
 
 	//getters

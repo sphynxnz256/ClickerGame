@@ -1,17 +1,15 @@
 #pragma once
 
 #include "core/RNG.h"
+#include "view/TextureCache.h"
 
 class Enemy
 {
 private:
 	//private variables
-	sf::Texture m_texture;
-	sf::Sprite m_sprite;
 	RNG& m_rng;
-	std::unordered_map<int, std::string> m_textureAddressMap;
-	std::unordered_map<int, std::shared_ptr<sf::Texture>> m_textureMap;
-	int m_textureNumber;
+	TextureCache& m_textures;
+	sf::Sprite m_sprite;
 
 	float m_hpMax;
 	float m_hpCurrent;
@@ -21,12 +19,12 @@ private:
 
 	//private functions
 	void initVariables();
-	void initTextures();
+	const sf::Texture& randomTexture();
 	void initSprite();
 
 public:
 	//constructor
-	Enemy(RNG& rng);
+	Enemy(RNG& rng, TextureCache& textures);
 	//deconstructor
 	~Enemy();
 

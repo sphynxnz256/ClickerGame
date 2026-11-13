@@ -1,9 +1,25 @@
 #include "stdafx.h"
 #include "entities/Enemy.h"
 
+namespace
+{
+	const std::string texturePaths[] = {
+		"textures/enemies/slime.png",
+		"textures/enemies/crab.png",
+		"textures/enemies/rat.png",
+		"textures/enemies/raven.png",
+		"textures/enemies/wasp.png"
+	};
+}
+
 /*the enemy holds the enemies state*/
 
 //private functions	
+const sf::Texture& Enemy::randomTexture()
+{
+	return m_textures.get(texturePaths[m_rng.generateRandomNum(1, 5) - 1]);
+}
+
 void Enemy::initVariables()
 {
 	m_hpMax = 10.f;
@@ -12,46 +28,16 @@ void Enemy::initVariables()
 	m_spriteScale = std::make_pair(0.25f, 0.25f);
 }
 
-void Enemy::initTextures()
-{
-	//store addresses of textures in map	
-	m_textureAddressMap[1] = "textures/enemies/slime.png";
-	m_textureAddressMap[2] = "textures/enemies/crab.png";
-	m_textureAddressMap[3] = "textures/enemies/rat.png";
-	m_textureAddressMap[4] = "textures/enemies/raven.png";
-	m_textureAddressMap[5] = "textures/enemies/wasp.png";
-
-	//preload textures and store them in a map
-	for (const auto& pair : m_textureAddressMap)
-	{
-		int uniqueNumber = pair.first;
-		const std::string& textureAddress = pair.second;
-
-		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
-		if (texture->loadFromFile(textureAddress))
-		{
-			m_textureMap[uniqueNumber] = texture;
-		}
-		else
-		{
-			std::cout << "ERROR::ENEMY::INITTEXTURE::Failed to load " << textureAddress << '\n';
-		}
-	}
-
-	m_texture = *m_textureMap[m_rng.generateRandomNum(1, 5)];
-}
-
 void Enemy::initSprite()
 {
-	m_sprite.setTexture(m_texture, true);
 	m_sprite.setScale({m_spriteScale.first, m_spriteScale.second});
 }
 
 //constructor
-Enemy::Enemy(RNG& rng) : m_sprite(m_texture), m_rng(rng)
+Enemy::Enemy(RNG& rng, TextureCache& textures)
+	: m_rng(rng), m_textures(textures), m_sprite(randomTexture())
 {	
 	initVariables();
-	initTextures();
 	initSprite();
 }
 
@@ -109,8 +95,7 @@ void Enemy::takeDamage(const float damageTaken)
 void Enemy::resetEnemy()
 {
 	m_hpCurrent = m_hpMax;
-	m_texture = *m_textureMap[m_rng.generateRandomNum(1, 5)];
-	m_sprite.setTexture(m_texture);
+	m_sprite.setTexture(randomTexture());
 	m_sprite.setScale({m_spriteScale.first, m_spriteScale.second});
 }
 

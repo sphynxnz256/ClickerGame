@@ -7,6 +7,7 @@
 #include "graphics/Animator.h"
 #include "core/RNG.h"
 #include "entities/Coin.h"
+#include "view/TextureCache.h"
 
 class Game
 {
@@ -14,6 +15,7 @@ private:
 	//private variables
 	sf::RenderWindow m_window;
 	sf::Clock m_frameClock;
+	TextureCache m_textures;
 
 	Player* m_player;
 	Enemy* m_enemy;
@@ -29,14 +31,12 @@ private:
 
 	sf::Vector2f m_mousePosition;
 
-	sf::Texture m_backgroundTexture;
 	sf::Sprite m_background;
 
 	int m_killCounter;
 	bool m_bossActive;
 	int m_coinsToDrop;
 	std::vector<Coin> m_coinsVector;
-	std::shared_ptr<sf::Texture> m_sharedCoinTexture;
 	sf::Vector2f m_coinStart;
 	sf::Vector2f m_coinEnd;
 
@@ -46,8 +46,6 @@ private:
 	void initEnemy();
 	void initBoss();
 	void initAnimator();
-	void initBackground();
-	void initCoins();
 	void initUI();
 
 	//private update functions

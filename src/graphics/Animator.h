@@ -1,4 +1,7 @@
 #pragma once
+
+#include "view/TextureCache.h"
+
 class Animator
 {
 private:
@@ -16,7 +19,6 @@ private:
 
 	float m_deathAnimationSpeed;		
 
-	sf::Texture m_smokeTextureSheet;
 	sf::Sprite m_smokeSprite;
 	sf::IntRect m_currentFrame;
 
@@ -31,7 +33,6 @@ private:
 
 	//private initation functions
 	void initVariables();
-	void initSmokeTexture();
 	void initSmokeSprite();
 	//void initCoinAnimation(sf::Texture& coinTexture); 
 
@@ -47,7 +48,7 @@ private:
 
 public:
 	//constructor
-	Animator(sf::Texture& coinTexture);
+	Animator(TextureCache& textures);
 	//deconstructor
 	~Animator();
 

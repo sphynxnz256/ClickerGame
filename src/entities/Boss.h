@@ -1,10 +1,11 @@
 #pragma once
 
+#include "view/TextureCache.h"
+
 class Boss
 {
 private:
 	//private variables
-	sf::Texture m_texture;
 	sf::Sprite m_sprite;
 
 	float m_hpMax;
@@ -15,12 +16,11 @@ private:
 
 	//private functions
 	void initVariables();
-	void initTextures();
 	void initSprite();
 
 public:
 	//constructor
-	Boss();
+	Boss(TextureCache& textures);
 	//deconstructor
 	~Boss();
 

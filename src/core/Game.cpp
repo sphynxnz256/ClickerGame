@@ -19,7 +19,7 @@ void Game::initPlayer()
 void Game::initEnemy()
 {
 	//stores enemy state
-	m_enemy = new Enemy(m_rng);
+	m_enemy = new Enemy(m_rng, m_textures);
 	m_enemy->setPosition(
 		m_window.getSize().x /2 - m_enemy->getGlobalBounds().size.x / 2, 
 		m_window.getSize().y / 2 - m_enemy->getGlobalBounds().size.y / 2);
@@ -28,7 +28,7 @@ void Game::initEnemy()
 void Game::initBoss()
 {
 	m_killCounter = 0;
-	m_boss = new Boss();
+	m_boss = new Boss(m_textures);
 	m_boss->setPosition( 
 		m_window.getSize().x / 2 - m_boss->getGlobalBounds().size.x / 2, 
 		m_window.getSize().y / 2 - m_boss->getGlobalBounds().size.y / 2); 
@@ -37,31 +37,12 @@ void Game::initBoss()
 
 void Game::initAnimator()
 { 
-	m_animator = new Animator(*m_sharedCoinTexture);
+	m_animator = new Animator(m_textures);
 	m_playDeathAnimation = false;
 	m_playEscapeAnimation = false;
 	m_animator->setSmokeSpritePosition(
 		m_window.getSize().x / 2 - m_animator->getSmokeSpriteGlobalBounds().size.x / 2,
 		m_window.getSize().y / 2 - m_animator->getSmokeSpriteGlobalBounds().size.y / 2);
-}
-
-void Game::initBackground()
-{
-	//sets the background
-	if (!m_backgroundTexture.loadFromFile("textures/backgrounds/beach.png"))
-	{
-		std::cout << "ERROR::GAME::INITBACKGROUND::Can't load beach.png";
-	}
-	m_background.setTexture(m_backgroundTexture, true);
-}
-
-void Game::initCoins()
-{
-	m_sharedCoinTexture = std::make_shared<sf::Texture>();
-	if (!m_sharedCoinTexture->loadFromFile("textures/coin.png"))
-	{
-		std::cout << "ERROR::COIN::INITTEXTURE::Failed to load coin.png\n";
-	}
 }
 
 void Game::initUI()
@@ -282,7 +263,7 @@ void Game::dropCoins(std::pair<int, int> coinsToDrop, sf::Vector2f coinStart)
 	m_playCoinAnimation = true;
 	for (size_t i = 0; i < m_coinsToDrop; i++)
 	{
-		Coin tempCoin(m_rng, m_window.getSize(), m_sharedCoinTexture, coinStart);
+		Coin tempCoin(m_rng, m_window.getSize(), m_textures.get("textures/coin.png"), coinStart);
 		m_coinsVector.push_back(Coin(tempCoin));
 	}	
 }
@@ -416,14 +397,12 @@ void Game::renderUI()
 }
 
 //constructor
-Game::Game(RNG& rng) : m_rng(rng), m_background(m_backgroundTexture)
+Game::Game(RNG& rng) : m_rng(rng), m_background(m_textures.get("textures/backgrounds/beach.png"))
 {
 	initWindow();
-	initBackground();
 	initEnemy();
 	initBoss();
 	initPlayer();
-	initCoins();
 	initAnimator();
 	initUI();
 

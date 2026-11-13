@@ -29,6 +29,7 @@ add_executable(ClickerGame
     src/graphics/Animator.cpp
     src/ui/Button.cpp
     src/ui/UI.cpp
+    src/view/TextureCache.cpp
 )
 
 target_precompile_headers(ClickerGame PRIVATE src/stdafx.h)

@@ -13,17 +13,8 @@ void Animator::initVariables()
 	m_frameDuration = 0.05f;
 }
 
-void Animator::initSmokeTexture()
-{
-	if (!m_smokeTextureSheet.loadFromFile("textures/smoke_sheet.png"))
-	{
-		std::cout << "ERROR::ANIMATOR::INITSMOKETEXTURE::Couldn't load smoke_sheet.png\n";
-	}
-}
-
 void Animator::initSmokeSprite()
 {
-	m_smokeSprite.setTexture(m_smokeTextureSheet, true);
 	m_currentFrame = sf::IntRect({0, 0}, {150, 150});
 	m_smokeSprite.setTextureRect(sf::IntRect({0, 0}, {150, 150}));
 	m_smokeSprite.setScale({2.f, 2.f});
@@ -86,10 +77,9 @@ void Animator::renderEscapeAnimation(sf::RenderTarget& target, bool playEscape)
 }
 
 //constructor
-Animator::Animator(sf::Texture& coinTexture) : m_smokeSprite(m_smokeTextureSheet)
+Animator::Animator(TextureCache& textures) : m_smokeSprite(textures.get("textures/smoke_sheet.png"))
 {
 	initVariables();
-	initSmokeTexture();
 	initSmokeSprite();
 }
 

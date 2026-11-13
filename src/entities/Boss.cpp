@@ -10,24 +10,14 @@ void Boss::initVariables()
 	m_spriteScale = std::make_pair(0.5f, 0.5f);
 }
 
-void Boss::initTextures()
-{
-	if (!m_texture.loadFromFile("textures/enemies/jellyfish.png"))
-	{
-		std::cout << "ERROR::BOSS::INITTEXTURE::Failed to load jellyfish.png\n";
-	}
-}
-
 void Boss::initSprite()
 {
-	m_sprite.setTexture(m_texture, true);
 	m_sprite.setScale({m_spriteScale.first, m_spriteScale.second});
 }
 //constructor
-Boss::Boss() : m_sprite(m_texture)
+Boss::Boss(TextureCache& textures) : m_sprite(textures.get("textures/enemies/jellyfish.png"))
 {
 	initVariables();
-	initTextures();
 	initSprite();
 }
 

@@ -10,7 +10,7 @@ void Coin::initVariables(const sf::Vector2u& targetSize)
 		static_cast<float>(targetSize.y) - 150.f);
 }
 
-void Coin::initSprite(std::shared_ptr<sf::Texture> sharedTexture)
+void Coin::initSprite()
 {
 	m_sprite.setScale({0.1f, 0.1f});
 	m_sprite.setPosition(sf::Vector2f(m_startPoint.x - m_sprite.getGlobalBounds().size.x / 2, 
@@ -94,11 +94,11 @@ void Coin::updateLocation(float dt)
 }
 
 //constructor
-Coin::Coin(RNG& rng, const sf::Vector2u& targetSize, std::shared_ptr<sf::Texture> sharedTexture,
+Coin::Coin(RNG& rng, const sf::Vector2u& targetSize, const sf::Texture& texture,
 	sf::Vector2f startPoint)
-	: m_texture(sharedTexture), m_sprite(*sharedTexture), m_rng(rng), m_startPoint(startPoint)
+	: m_sprite(texture), m_rng(rng), m_startPoint(startPoint)
 {
-	initSprite(sharedTexture);
+	initSprite();
 	initVariables(targetSize);
 	initControlPoint();
 	initAnimationSpeed();
