@@ -8,4 +8,5 @@ struct EnemyType
 	int coinsMin;
 	int coinsMax;
 	float scale;
+	bool isBoss;
 };

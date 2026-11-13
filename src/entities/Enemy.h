@@ -32,13 +32,14 @@ public:
 	const float getHpCurrent() const;
 	sf::Sprite* getSprite();
 	const std::pair<int, int> getCoinsToDrop() const;
+	const EnemyType& getType() const;
 
 	//setters
 	void setPosition(const float x, const float y);
 	void takeDamage(const float damageTaken);
 	
 	//public functions
-	void resetEnemy();
+	void spawn(const EnemyType& type);
 	bool isDead();
 
 	void render(sf::RenderTarget& target);

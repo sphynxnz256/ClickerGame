@@ -2,7 +2,7 @@
 
 #include "content/EnemyTypes.h"
 #include "entities/Enemy.h"
-#include "entities/Player.h"
+#include "state/GameState.h"
 #include "ui/UI.h"
 #include "graphics/Animator.h"
 #include "core/RNG.h"
@@ -17,15 +17,11 @@ private:
 	sf::Clock m_frameClock;
 	TextureCache m_textures;
 
-	Player* m_player;
+	GameState m_state;
 	Enemy* m_enemy;
-	Enemy* m_boss;
 	UI* m_ui;
 
 	Animator* m_animator;
-	bool m_playDeathAnimation;
-	bool m_playEscapeAnimation;
-	bool m_playCoinAnimation;
 
 	RNG& m_rng;
 
@@ -33,18 +29,11 @@ private:
 
 	sf::Sprite m_background;
 
-	int m_killCounter;
-	bool m_bossActive;
-	int m_coinsToDrop;
 	std::vector<Coin> m_coinsVector;
-	sf::Vector2f m_coinStart;
-	sf::Vector2f m_coinEnd;
 
 	//private initiation functions
 	void initWindow();
-	void initPlayer();
 	void initEnemy();
-	void initBoss();
 	void initAnimator();
 	void initUI();
 
@@ -58,19 +47,18 @@ private:
 
 	//private rendering functions
 	void renderEnemy();
-	void renderBoss();
 	void renderAnimator();
 	void renderBackground();
 	void renderCoins();
 	void renderUI();
 
 	//other private functions
-	void bossTakeDamage();
-	void enemyTakeDamage();
+	bool isBossFight() const;
+	void damageEnemy();
+	void spawnEnemy(const EnemyType& type);
 	void bossEscape();
 	void enemyDeath();
 	void dropCoins(std::pair<int, int> coinsToDrop, sf::Vector2f coinStart);
-	void setUpBoss();
 	void bossDeath();
 	void upgradeDamage();
 	void retreat();

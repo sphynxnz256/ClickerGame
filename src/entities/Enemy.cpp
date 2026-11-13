@@ -63,6 +63,11 @@ const std::pair<int, int> Enemy::getCoinsToDrop() const
 	return std::make_pair(m_type->coinsMin, m_type->coinsMax);
 }
 
+const EnemyType& Enemy::getType() const
+{
+	return *m_type;
+}
+
 //setters
 void Enemy::setPosition(const float x, const float y)
 {
@@ -78,10 +83,11 @@ void Enemy::takeDamage(const float damageTaken)
 	}
 }
 
-void Enemy::resetEnemy()
+void Enemy::spawn(const EnemyType& type)
 {
+	m_type = &type;
 	m_hpCurrent = m_type->hpMax;
-	m_sprite.setTexture(randomTexture());
+	m_sprite.setTexture(randomTexture(), true);
 	m_sprite.setScale({m_type->scale, m_type->scale});
 }
 

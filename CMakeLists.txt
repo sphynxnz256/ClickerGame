@@ -24,7 +24,6 @@ add_executable(ClickerGame
     src/core/RNG.cpp
     src/entities/Coin.cpp
     src/entities/Enemy.cpp
-    src/entities/Player.cpp
     src/graphics/Animator.cpp
     src/ui/Button.cpp
     src/ui/UI.cpp
