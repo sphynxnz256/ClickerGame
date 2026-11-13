@@ -1,5 +1,6 @@
 #pragma once
 
+#include "content/EnemyType.h"
 #include "core/RNG.h"
 #include "view/TextureCache.h"
 
@@ -7,15 +8,11 @@ class Enemy
 {
 private:
 	//private variables
+	const EnemyType* m_type;
 	RNG& m_rng;
 	TextureCache& m_textures;
 	sf::Sprite m_sprite;
-
-	float m_hpMax;
 	float m_hpCurrent;
-	std::pair<float, float> m_spriteScale;
-
-	std::pair<int, int> m_coinsToDrop;
 
 	//private functions
 	void initVariables();
@@ -24,7 +21,7 @@ private:
 
 public:
 	//constructor
-	Enemy(RNG& rng, TextureCache& textures);
+	Enemy(const EnemyType& type, RNG& rng, TextureCache& textures);
 	//deconstructor
 	~Enemy();
 

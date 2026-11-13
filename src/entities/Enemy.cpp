@@ -1,41 +1,27 @@
 #include "stdafx.h"
 #include "entities/Enemy.h"
 
-namespace
-{
-	const std::string texturePaths[] = {
-		"textures/enemies/slime.png",
-		"textures/enemies/crab.png",
-		"textures/enemies/rat.png",
-		"textures/enemies/raven.png",
-		"textures/enemies/wasp.png"
-	};
-}
-
 /*the enemy holds the enemies state*/
 
 //private functions	
 const sf::Texture& Enemy::randomTexture()
 {
-	return m_textures.get(texturePaths[m_rng.generateRandomNum(1, 5) - 1]);
+	return m_textures.get(m_type->texturePaths[m_rng.generateRandomNum(0, static_cast<int>(m_type->texturePaths.size()) - 1)]);
 }
 
 void Enemy::initVariables()
 {
-	m_hpMax = 10.f;
-	m_hpCurrent = m_hpMax;
-	m_coinsToDrop = std::make_pair(1, 2);
-	m_spriteScale = std::make_pair(0.25f, 0.25f);
+	m_hpCurrent = m_type->hpMax;
 }
 
 void Enemy::initSprite()
 {
-	m_sprite.setScale({m_spriteScale.first, m_spriteScale.second});
+	m_sprite.setScale({m_type->scale, m_type->scale});
 }
 
 //constructor
-Enemy::Enemy(RNG& rng, TextureCache& textures)
-	: m_rng(rng), m_textures(textures), m_sprite(randomTexture())
+Enemy::Enemy(const EnemyType& type, RNG& rng, TextureCache& textures)
+	: m_type(&type), m_rng(rng), m_textures(textures), m_sprite(randomTexture())
 {	
 	initVariables();
 	initSprite();
@@ -59,7 +45,7 @@ const sf::FloatRect Enemy::getGlobalBounds() const
 
 const float Enemy::getHpMax() const
 {
-	return m_hpMax;
+	return m_type->hpMax;
 }
 
 const float Enemy::getHpCurrent() const
@@ -74,7 +60,7 @@ sf::Sprite* Enemy::getSprite()
 
 const std::pair<int, int> Enemy::getCoinsToDrop() const
 {
-	return m_coinsToDrop;
+	return std::make_pair(m_type->coinsMin, m_type->coinsMax);
 }
 
 //setters
@@ -94,9 +80,9 @@ void Enemy::takeDamage(const float damageTaken)
 
 void Enemy::resetEnemy()
 {
-	m_hpCurrent = m_hpMax;
+	m_hpCurrent = m_type->hpMax;
 	m_sprite.setTexture(randomTexture());
-	m_sprite.setScale({m_spriteScale.first, m_spriteScale.second});
+	m_sprite.setScale({m_type->scale, m_type->scale});
 }
 
 bool Enemy::isDead()

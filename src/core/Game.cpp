@@ -19,7 +19,7 @@ void Game::initPlayer()
 void Game::initEnemy()
 {
 	//stores enemy state
-	m_enemy = new Enemy(m_rng, m_textures);
+	m_enemy = new Enemy(content::regularEnemy, m_rng, m_textures);
 	m_enemy->setPosition(
 		m_window.getSize().x /2 - m_enemy->getGlobalBounds().size.x / 2, 
 		m_window.getSize().y / 2 - m_enemy->getGlobalBounds().size.y / 2);
@@ -28,7 +28,7 @@ void Game::initEnemy()
 void Game::initBoss()
 {
 	m_killCounter = 0;
-	m_boss = new Boss(m_textures);
+	m_boss = new Enemy(content::boss, m_rng, m_textures);
 	m_boss->setPosition( 
 		m_window.getSize().x / 2 - m_boss->getGlobalBounds().size.x / 2, 
 		m_window.getSize().y / 2 - m_boss->getGlobalBounds().size.y / 2); 
@@ -215,7 +215,7 @@ void Game::bossEscape()
 		m_playEscapeAnimation = false;
 
 		//reset boss
-		m_boss->resetBoss();
+		m_boss->resetEnemy();
 		m_bossActive = false;
 
 		//set hp bar for next enemy
@@ -293,7 +293,7 @@ void Game::bossDeath()
 
 		//reset boss for next boss fight
 		m_bossActive = false;
-		m_boss->resetBoss();		
+		m_boss->resetEnemy();		
 		m_boss->setPosition(
 			m_window.getSize().x / 2 - m_boss->getGlobalBounds().size.x / 2,
 			m_window.getSize().y / 2 - m_boss->getGlobalBounds().size.y / 2);

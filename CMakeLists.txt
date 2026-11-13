@@ -22,7 +22,6 @@ add_executable(ClickerGame
     src/core/Game.cpp
     src/core/Level.cpp
     src/core/RNG.cpp
-    src/entities/Boss.cpp
     src/entities/Coin.cpp
     src/entities/Enemy.cpp
     src/entities/Player.cpp

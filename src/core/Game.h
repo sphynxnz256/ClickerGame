@@ -1,8 +1,8 @@
 #pragma once
 
+#include "content/EnemyTypes.h"
 #include "entities/Enemy.h"
 #include "entities/Player.h"
-#include "entities/Boss.h"
 #include "ui/UI.h"
 #include "graphics/Animator.h"
 #include "core/RNG.h"
@@ -19,7 +19,7 @@ private:
 
 	Player* m_player;
 	Enemy* m_enemy;
-	Boss* m_boss;
+	Enemy* m_boss;
 	UI* m_ui;
 
 	Animator* m_animator;
