@@ -13,6 +13,7 @@ class Game
 private:
 	//private variables
 	sf::RenderWindow m_window;
+	sf::Clock m_frameClock;
 
 	Player* m_player;
 	Enemy* m_enemy;
@@ -53,9 +54,9 @@ private:
 	//private update functions
 	void polledEvents();
 	void updateCombat();
-	void updateUI();
-	void updateAnimator();
-	void updateCoins();
+	void updateUI(float dt);
+	void updateAnimator(float dt);
+	void updateCoins(float dt);
 
 	//private rendering functions
 	void renderEnemy();

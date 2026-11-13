@@ -9,12 +9,9 @@ private:
 	sf::Vector2f m_targetScale;
 	sf::Vector2f m_newScale;
 
-	sf::Clock m_dtClock;
 	float m_timeElapsed;
 	float m_frameDuration;
-	float m_deltaTime;
 
-	bool m_firstFrame;
 	bool m_animationEnd;
 
 	float m_deathAnimationSpeed;		
@@ -39,8 +36,8 @@ private:
 	//void initCoinAnimation(sf::Texture& coinTexture); 
 
 	//private update functions
-	void updateDeathAnimation();
-	void updateEscapeAnimation();
+	void updateDeathAnimation(float dt);
+	void updateEscapeAnimation(float dt);
 	//void updateCoinAnimation();
 
 	//private render functions
@@ -70,7 +67,7 @@ public:
 	//void startCoinAnimation(sf::Vector2f coinStart, sf::Vector2f coinEnd);
 	void resetAnimator();
 
-	void update(std::string updateThis); 
+	void update(std::string updateThis, float dt); 
 	void render(sf::RenderTarget& target, bool playDeath, bool playEscape,
 		bool playCoin);
 };

@@ -288,7 +288,7 @@ void Game::bossDeath()
 	}
 }
 
-void Game::updateUI()
+void Game::updateUI(float dt)
 {
 	/*when clicked and when the player has enough coins, upgrade the players damage and set the UI
 	to reflect this*/
@@ -304,7 +304,7 @@ void Game::updateUI()
 		retreat();
 	}
 
-	m_ui->update(m_bossActive, static_cast<float>(m_window.getSize().x), m_boss->getGlobalBounds().position.y);
+	m_ui->update(m_bossActive, static_cast<float>(m_window.getSize().x), m_boss->getGlobalBounds().position.y, dt);
 }
 
 void Game::upgradeDamage()
@@ -340,27 +340,27 @@ void Game::retreat()
 	}
 }
 
-void Game::updateAnimator()
+void Game::updateAnimator(float dt)
 {
 	/*triggered when the enemy reaches 0 hp, play a death animation and make sure the animation sprite stays
 	in its correct position*/
 	if (m_playDeathAnimation)
 	{
-		m_animator->update("death");
+		m_animator->update("death", dt);
 		m_animator->setDeathSpritePosition(m_window.getSize().x / 2 - m_animator->getDeathSpriteGlobalBounds().size.x / 2,
 			m_window.getSize().y / 2 - m_animator->getDeathSpriteGlobalBounds().size.y / 2);
 	}
 	if (m_playEscapeAnimation)
 	{
-		m_animator->update("escape");
+		m_animator->update("escape", dt);
 	}
 }
 
-void Game::updateCoins()
+void Game::updateCoins(float dt)
 {
 	for (Coin& coin : m_coinsVector)
 	{
-		coin.update();
+		coin.update(dt);
 	}
 
 	static bool clickProcessed = false;
@@ -448,6 +448,8 @@ Game::Game(RNG& rng) : m_rng(rng), m_background(m_backgroundTexture)
 	initCoins();
 	initAnimator();
 	initUI();
+
+	m_frameClock.restart();
 }
 
 //deconstructor
@@ -468,11 +470,13 @@ const sf::RenderWindow& Game::getWindow() const
 //public functions
 void Game::update()
 {
+	const float dt = m_frameClock.restart().asSeconds();
+
 	polledEvents();
 	updateCombat();
-	updateAnimator();
-	updateCoins();
-	updateUI();
+	updateAnimator(dt);
+	updateCoins(dt);
+	updateUI(dt);
 }
 
 void Game::render()

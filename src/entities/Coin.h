@@ -11,10 +11,8 @@ private:
 	RNG& m_rng;
 	int m_coinValue;
 
-	sf::Clock m_dtClock;
 	float m_timeElapsed;
 	float m_frameDuration;
-	float m_deltaTime;
 
 	sf::Vector2f m_startPoint;
 	sf::Vector2f m_endPoint;
@@ -31,7 +29,7 @@ private:
 	void initAnimationSpeed();
 	void initDistanceToTravel();
 	void initAnimation();
-	void updateLocation();
+	void updateLocation(float dt);
 
 public:
 	//constructor
@@ -46,7 +44,7 @@ public:
 	bool isMouseOver(const sf::Vector2f& mousePos);
 	bool checkPosition();
 
-	void update();
+	void update(float dt);
 	void render(sf::RenderTarget& target);
 };
 

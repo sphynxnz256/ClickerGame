@@ -7,7 +7,6 @@
 //private initation functions
 void Animator::initVariables()
 {
-	m_firstFrame = true;
 	m_animationEnd = false;
 	m_timeElapsed = 0.f;
 	m_deathAnimationSpeed = 10.f;
@@ -30,22 +29,14 @@ void Animator::initSmokeSprite()
 	m_smokeSprite.setScale({2.f, 2.f});
 }
 
-void Animator::updateDeathAnimation()
+void Animator::updateDeathAnimation(float dt)
 {	
-	if (m_firstFrame)
-	{
-		//resets the clock since its been running a while
-		m_firstFrame = false;
-		m_deltaTime = m_dtClock.restart().asSeconds();
-	}
-	else if(m_deathSprite->getScale().x > 0.001)
+	if(m_deathSprite->getScale().x > 0.001)
 	{
 		//death animation. shrinks the enemy to nothing
-		m_deltaTime = m_dtClock.restart().asSeconds();
-
 		m_currentScale = m_deathSprite->getScale();
 		m_newScale = m_currentScale - m_currentScale 
-			* m_deltaTime * m_deathAnimationSpeed;
+			* dt * m_deathAnimationSpeed;
 		m_deathSprite->setScale(m_newScale);
 	}
 	else
@@ -55,35 +46,25 @@ void Animator::updateDeathAnimation()
 	}
 }
 
-void Animator::updateEscapeAnimation()
+void Animator::updateEscapeAnimation(float dt)
 {
-	if (m_firstFrame)
-	{
-		//resets the clock since its been running a while
-		m_firstFrame = false;
-		m_deltaTime = m_dtClock.restart().asSeconds();
-	}
-	else
-	{
-		//plays a puff of smoke when enemy escapes
-		m_deltaTime = m_dtClock.restart().asSeconds();
-		m_timeElapsed += m_deltaTime;
+	//plays a puff of smoke when enemy escapes
+	m_timeElapsed += dt;
 
-		if(m_timeElapsed >= m_frameDuration)
+	if(m_timeElapsed >= m_frameDuration)
+	{
+		m_timeElapsed = 0.f;
+		if (m_currentFrame.position.x < 1050)
 		{
+			m_currentFrame.position.x += 150;
+			m_smokeSprite.setTextureRect(m_currentFrame);
+		}
+		else
+		{
+			m_animationEnd = true;
 			m_timeElapsed = 0.f;
-			if (m_currentFrame.position.x < 1050)
-			{
-				m_currentFrame.position.x += 150;
-				m_smokeSprite.setTextureRect(m_currentFrame);
-			}
-			else
-			{
-				m_animationEnd = true;
-				m_timeElapsed = 0.f;
-				m_currentFrame = sf::IntRect({0, 0}, {150, 150});
+			m_currentFrame = sf::IntRect({0, 0}, {150, 150});
 
-			}
 		}
 	}
 }
@@ -153,19 +134,18 @@ void Animator::setSprite(sf::Sprite* sprite)
 void Animator::resetAnimator()
 {
 	m_animationEnd = false;
-	m_firstFrame = true;
 }
 
-void Animator::update(std::string updateThis)
+void Animator::update(std::string updateThis, float dt)
 {
 	if(updateThis == "death")
 	{
-		updateDeathAnimation();
+		updateDeathAnimation(dt);
 	}
 
 	if(updateThis == "escape")
 	{
-		updateEscapeAnimation();
+		updateEscapeAnimation(dt);
 	}
 }
 

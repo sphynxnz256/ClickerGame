@@ -19,10 +19,7 @@ private:
 	std::optional<Button> m_retreatButton;
 
 	sf::Text m_countdownText;
-	sf::Clock m_dtClock;
 	float m_timeLeft;
-	bool m_firstFrame;
-	float m_dt;
 
 	//private initiation functions
 	void initHpBar(float targetX, float enemyTop);
@@ -33,7 +30,7 @@ private:
 	void initCountdown(float targetX, float bossTop);
 
 	//private update functions
-	void updateCountdown(float targetX, float bossTop);
+	void updateCountdown(float targetX, float bossTop, float dt);
 
 	//private render functions
 	void renderHpBar(sf::RenderTarget& target, bool escapeAnimation, bool deathAnimation);
@@ -66,7 +63,7 @@ public:
 	bool upgradeButtonCLicked(sf::Vector2f& mousePos);
 	bool retreatButtonCLicked(sf::Vector2f& mousePos);
 	void resetTimer();
-	void update(const bool bossActive, float targetX, float bossTop);
+	void update(const bool bossActive, float targetX, float bossTop, float dt);
 	void render(sf::RenderTarget& target, const sf::Vector2f& mousePos,
 		bool bossActive, bool bossEscape, bool deathAnimation);
 };

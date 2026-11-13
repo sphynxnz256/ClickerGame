@@ -99,42 +99,31 @@ void UI::initRetreatButton()
 void UI::initCountdown(float targetX, float bossTop)
 {
 	m_timeLeft = 15.f;
-	m_firstFrame = true;
 	m_countdownText.setPosition({targetX / 2 - m_countdownText.getGlobalBounds().size.x / 2,
 		bossTop - 60.f}); 
 }
 
-void UI::updateCountdown(float targetX, float bossTop)
+void UI::updateCountdown(float targetX, float bossTop, float dt)
 {
 	//update the boss timer when fighting a boss
-	if (m_firstFrame)
+	//calculate current remaining time
+	m_timeLeft -= dt;
+
+	//check if time left is negative and set to 0
+	if (m_timeLeft < 0.f)
 	{
-		/*hack to avoid having a large dt for the first frame*/
-		m_firstFrame = false; 
-		m_dt = m_dtClock.restart().asSeconds();
+		m_timeLeft = 0.f;
 	}
-	else
-	{	
-		//calculate current remaining time
-		m_dt = m_dtClock.restart().asSeconds();
-		m_timeLeft -= m_dt;
 
-		//check if time left is negative and set to 0
-		if (m_timeLeft < 0.f)
-		{
-			m_timeLeft = 0.f;
-		}
-
-		//update countdown text
-		std::stringstream ss;
-		ss << std::fixed << std::setprecision(1) << m_timeLeft;
-		m_countdownText.setString(ss.str());
-		m_countdownText.setPosition({targetX / 2 - m_countdownText.getGlobalBounds().size.x / 2,
-			bossTop - 60.f});
-		if (m_timeLeft < 3.f)
-		{
-			m_countdownText.setFillColor(sf::Color::Red);
-		}
+	//update countdown text
+	std::stringstream ss;
+	ss << std::fixed << std::setprecision(1) << m_timeLeft;
+	m_countdownText.setString(ss.str());
+	m_countdownText.setPosition({targetX / 2 - m_countdownText.getGlobalBounds().size.x / 2,
+		bossTop - 60.f});
+	if (m_timeLeft < 3.f)
+	{
+		m_countdownText.setFillColor(sf::Color::Red);
 	}
 }
 
@@ -280,15 +269,14 @@ bool UI::retreatButtonCLicked(sf::Vector2f& mousePos)
 void UI::resetTimer()
 {
 	m_timeLeft = 15.f;
-	m_firstFrame = true;
 	m_countdownText.setFillColor(sf::Color::White);
 }
 
-void UI::update(const bool bossActive, float targetX, float bossTop)
+void UI::update(const bool bossActive, float targetX, float bossTop, float dt)
 {
 	if(bossActive)	{
 		
-		updateCountdown(targetX, bossTop);
+		updateCountdown(targetX, bossTop, dt);
 	}
 }
 

@@ -63,17 +63,15 @@ void Coin::initDistanceToTravel()
 void Coin::initAnimation()
 {
 	m_animationEnded = false;
-	m_deltaTime = m_dtClock.restart().asSeconds();
 	m_timeElapsed = 0.f;
 }
 
-void Coin::updateLocation()
+void Coin::updateLocation(float dt)
 {
 	if (!m_animationEnded)
 	{
 		//plays animation of coin dropping from killed enemy
-		m_deltaTime = m_dtClock.restart().asSeconds();
-		m_timeElapsed += m_deltaTime;
+		m_timeElapsed += dt;
 
 		//calculate progress based on speed
 		float progress = (m_timeElapsed * m_animationSpeed) /
@@ -135,9 +133,9 @@ bool Coin::checkPosition()
 	return false;
 }
 
-void Coin::update()
+void Coin::update(float dt)
 {
-	updateLocation();
+	updateLocation(dt);
 }
 
 void Coin::render(sf::RenderTarget& target)
