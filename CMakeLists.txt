@@ -23,10 +23,14 @@ add_executable(ClickerGame
     src/core/Level.cpp
     src/core/RNG.cpp
     src/entities/Coin.cpp
-    src/entities/Enemy.cpp
     src/graphics/Animator.cpp
+    src/rules/BossTimer.cpp
+    src/rules/Combat.cpp
+    src/rules/Spawning.cpp
+    src/rules/Upgrades.cpp
     src/ui/Button.cpp
     src/ui/UI.cpp
+    src/view/EnemyView.cpp
     src/view/NumberFormat.cpp
     src/view/TextureCache.cpp
 )

@@ -99,33 +99,19 @@ void UI::initRetreatButton()
 
 void UI::initCountdown(float targetX, float bossTop)
 {
-	m_timeLeft = 15.f;
 	m_countdownText.setPosition({targetX / 2 - m_countdownText.getGlobalBounds().size.x / 2,
 		bossTop - 60.f}); 
 }
 
-void UI::updateCountdown(float targetX, float bossTop, float dt)
+void UI::updateCountdown(float targetX, float bossTop, double timeLeft)
 {
-	//update the boss timer when fighting a boss
-	//calculate current remaining time
-	m_timeLeft -= dt;
-
-	//check if time left is negative and set to 0
-	if (m_timeLeft < 0.f)
-	{
-		m_timeLeft = 0.f;
-	}
-
 	//update countdown text
 	std::stringstream ss;
-	ss << std::fixed << std::setprecision(1) << m_timeLeft;
+	ss << std::fixed << std::setprecision(1) << timeLeft;
 	m_countdownText.setString(ss.str());
 	m_countdownText.setPosition({targetX / 2 - m_countdownText.getGlobalBounds().size.x / 2,
 		bossTop - 60.f});
-	if (m_timeLeft < 3.f)
-	{
-		m_countdownText.setFillColor(sf::Color::Red);
-	}
+	m_countdownText.setFillColor(timeLeft < 3.0 ? sf::Color::Red : sf::Color::White);
 }
 
 void UI::renderHpBar(sf::RenderTarget& target, bool escapeAnimation, bool deathAnimation)
@@ -184,11 +170,6 @@ UI::UI(float targetX, float enemyTop, double coins, double damage, double upgrad
 //deconstructor
 UI::~UI()
 {
-}
-
-const float UI::getTimeLeft()
-{
-	return m_timeLeft;
 }
 
 //setters
@@ -267,17 +248,11 @@ bool UI::retreatButtonContains(const sf::Vector2f& pos)
 	return m_retreatButton->isMouseOver(pos);
 }
 
-void UI::resetTimer()
-{
-	m_timeLeft = 15.f;
-	m_countdownText.setFillColor(sf::Color::White);
-}
-
-void UI::update(const bool bossActive, float targetX, float bossTop, float dt)
+void UI::update(const bool bossActive, float targetX, float bossTop, double timeLeft)
 {
 	if(bossActive)	{
 		
-		updateCountdown(targetX, bossTop, dt);
+		updateCountdown(targetX, bossTop, timeLeft);
 	}
 }
 

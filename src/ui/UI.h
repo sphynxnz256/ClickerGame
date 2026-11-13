@@ -1,6 +1,5 @@
 #pragma once
 
-#include "entities/Enemy.h"
 #include "ui/Button.h"
 
 class UI
@@ -19,7 +18,6 @@ private:
 	std::optional<Button> m_retreatButton;
 
 	sf::Text m_countdownText;
-	float m_timeLeft;
 
 	//private initiation functions
 	void initHpBar(float targetX, float enemyTop);
@@ -30,7 +28,7 @@ private:
 	void initCountdown(float targetX, float bossTop);
 
 	//private update functions
-	void updateCountdown(float targetX, float bossTop, float dt);
+	void updateCountdown(float targetX, float bossTop, double timeLeft);
 
 	//private render functions
 	void renderHpBar(sf::RenderTarget& target, bool escapeAnimation, bool deathAnimation);
@@ -46,9 +44,6 @@ public:
 	//deconstructor
 	~UI();
 
-	//getters
-	const float getTimeLeft();
-
 	//setters
 	void setHpBarPosition(const float targetX, const float enemyTop);
 	void setHpBarColor(const double currentHp, const double maxHp);
@@ -62,8 +57,7 @@ public:
 	//public functions
 	bool upgradeButtonContains(const sf::Vector2f& pos);
 	bool retreatButtonContains(const sf::Vector2f& pos);
-	void resetTimer();
-	void update(const bool bossActive, float targetX, float bossTop, float dt);
+	void update(const bool bossActive, float targetX, float bossTop, double timeLeft);
 	void render(sf::RenderTarget& target, const sf::Vector2f& mousePos,
 		bool bossActive, bool bossEscape, bool deathAnimation);
 };

@@ -9,4 +9,5 @@ struct EnemyType
 	int coinsMax;
 	float scale;
 	bool isBoss;
+	double timeLimit; //seconds before a boss escapes, 0 for no limit
 };

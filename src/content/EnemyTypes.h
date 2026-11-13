@@ -8,9 +8,9 @@ namespace content
 	inline const EnemyType regularEnemy{
 		{ "textures/enemies/slime.png", "textures/enemies/crab.png", "textures/enemies/rat.png",
 		  "textures/enemies/raven.png", "textures/enemies/wasp.png" },
-		10.0, 1, 2, 0.25f, false };
+		10.0, 1, 2, 0.25f, false, 0.0 };
 
 	inline const EnemyType boss{
 		{ "textures/enemies/jellyfish.png" },
-		250.0, 10, 20, 0.5f, true };
+		250.0, 10, 20, 0.5f, true, 15.0 };
 }
