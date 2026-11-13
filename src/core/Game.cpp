@@ -14,7 +14,6 @@ void Game::initPlayer()
 {
 	//holds player state
 	m_player = new Player();
-	m_mouseHeld = false;
 }
 
 void Game::initEnemy()
@@ -82,6 +81,70 @@ void Game::polledEvents()
 		{
 			m_window.close();
 		}
+		else if (const auto* pressed = event->getIf<sf::Event::MouseButtonPressed>())
+		{
+			if (pressed->button == sf::Mouse::Button::Left)
+			{
+				handleClick(sf::Vector2f(static_cast<float>(pressed->position.x),
+					static_cast<float>(pressed->position.y)));
+			}
+		}
+	}
+}
+
+void Game::handleClick(sf::Vector2f clickPos)
+{
+	//first match wins
+	if (m_ui->upgradeButtonContains(clickPos))
+	{
+		upgradeDamage();
+		return;
+	}
+
+	//retreat button is only visible (and clickable) during a boss fight with no animation playing
+	if (m_bossActive && !m_playEscapeAnimation && !m_playDeathAnimation
+		&& m_ui->retreatButtonContains(clickPos))
+	{
+		retreat();
+		return;
+	}
+
+	//collect any coins under the click
+	bool collected = false;
+	std::vector<Coin> coinsToKeep;
+	for (auto& coin : m_coinsVector)
+	{
+		if (coin.isMouseOver(clickPos) && coin.checkPosition())
+		{
+			m_player->addCoins(coin.getCoinValue());
+			m_ui->setCoinsText(m_player->getCoins());
+			collected = true;
+		}
+		else
+		{
+			coinsToKeep.push_back(coin);
+		}
+	}
+	m_coinsVector.swap(coinsToKeep);
+	if (collected)
+	{
+		return;
+	}
+
+	//attack the boss or enemy
+	if (!m_playDeathAnimation && !m_playEscapeAnimation)
+	{
+		if (m_bossActive)
+		{
+			if (m_boss->getGlobalBounds().contains(clickPos))
+			{
+				bossTakeDamage();
+			}
+		}
+		else if (m_enemy->getGlobalBounds().contains(clickPos))
+		{
+			enemyTakeDamage();
+		}
 	}
 }
 
@@ -96,32 +159,6 @@ void Game::updateCombat()
 		{
 			m_playEscapeAnimation = true;
 			bossEscape();			
-		}
-		/*this checks to see if the player is attacking and determines how much damage the enemy takes. it then
-		also updates the hp bar in the ui*/
-		else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
-		{
-			if (!m_mouseHeld)
-			{
-				m_mousePosition = sf::Vector2f(static_cast<float>(sf::Mouse::getPosition(m_window).x),
-					static_cast<float>(sf::Mouse::getPosition(m_window).y));
-
-				if (m_bossActive && m_boss->getGlobalBounds().contains(m_mousePosition))
-				{
-					m_mouseHeld = true;
-					bossTakeDamage();
-				}
-				//if fighting a regular enemy
-				else if (m_enemy->getGlobalBounds().contains(m_mousePosition))
-				{
-					m_mouseHeld = true;
-					enemyTakeDamage();
-				}
-			}
-		}
-		else
-		{
-			m_mouseHeld = false;
 		}
 
 		//if fighting boss and its dead, play death animation
@@ -290,54 +327,24 @@ void Game::bossDeath()
 
 void Game::updateUI(float dt)
 {
-	/*when clicked and when the player has enough coins, upgrade the players damage and set the UI
-	to reflect this*/
-	m_mousePosition = sf::Vector2f(static_cast<float>(sf::Mouse::getPosition(m_window).x),
-		static_cast<float>(sf::Mouse::getPosition(m_window).y));
-	if (m_ui->upgradeButtonCLicked(m_mousePosition))
-	{
-		upgradeDamage();
-	}
-
-	if (m_ui->retreatButtonCLicked(m_mousePosition))
-	{
-		retreat();
-	}
-
 	m_ui->update(m_bossActive, static_cast<float>(m_window.getSize().x), m_boss->getGlobalBounds().position.y, dt);
 }
 
 void Game::upgradeDamage()
 {
-	if (!m_mouseHeld)
+	if (m_player->canUpgrade())
 	{
-		m_mouseHeld = true;
-		if (m_player->canUpgrade())
-		{
-			m_player->upgradeDamage();
-			m_ui->setDamageText(m_player->getDamage());
-			m_ui->setCoinsText(m_player->getCoins());
-			m_ui->setUpgradeCostText(m_player->getUpgradeCost());
-		}
-	}
-	else
-	{
-		m_mouseHeld = false;
+		m_player->upgradeDamage();
+		m_ui->setDamageText(m_player->getDamage());
+		m_ui->setCoinsText(m_player->getCoins());
+		m_ui->setUpgradeCostText(m_player->getUpgradeCost());
 	}
 }
 
 void Game::retreat()
 {
-	if (!m_mouseHeld)
-	{
-		m_mouseHeld = true;
-		m_playEscapeAnimation = true;
-		bossEscape();
-	}
-	else
-	{
-		m_mouseHeld = false;
-	}
+	m_playEscapeAnimation = true;
+	bossEscape();
 }
 
 void Game::updateAnimator(float dt)
@@ -361,35 +368,6 @@ void Game::updateCoins(float dt)
 	for (Coin& coin : m_coinsVector)
 	{
 		coin.update(dt);
-	}
-
-	static bool clickProcessed = false;
-	if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) 
-	{
-		if (!clickProcessed)
-		{
-			m_mousePosition = sf::Vector2f(static_cast<float>(sf::Mouse::getPosition(m_window).x),
-				static_cast<float>(sf::Mouse::getPosition(m_window).y));
-				std::vector<Coin> coinsToKeep;
-			for (auto& coin : m_coinsVector)
-			{	
-				if (coin.isMouseOver(m_mousePosition) && coin.checkPosition())
-				{	
-					m_player->addCoins(coin.getCoinValue());
-					m_ui->setCoinsText(m_player->getCoins());					
-				}
-				else
-				{
-					coinsToKeep.push_back(coin);
-				}
-			}
-			m_coinsVector.swap(coinsToKeep);
-			clickProcessed = true;
-		}		 
-	}
-	else
-	{
-		clickProcessed = false; 
 	}
 }
 

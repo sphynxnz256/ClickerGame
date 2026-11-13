@@ -27,7 +27,6 @@ private:
 
 	RNG& m_rng;
 
-	bool m_mouseHeld;
 	sf::Vector2f m_mousePosition;
 
 	sf::Texture m_backgroundTexture;
@@ -53,6 +52,7 @@ private:
 
 	//private update functions
 	void polledEvents();
+	void handleClick(sf::Vector2f clickPos);
 	void updateCombat();
 	void updateUI(float dt);
 	void updateAnimator(float dt);

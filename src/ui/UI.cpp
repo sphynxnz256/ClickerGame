@@ -256,14 +256,14 @@ void UI::setCountdownPosition(float targetX, float bossTop)
 }
 
 //public functions
-bool UI::upgradeButtonCLicked(sf::Vector2f& mousePos)
+bool UI::upgradeButtonContains(const sf::Vector2f& pos)
 {
-	return m_upgradeButton->isClicked(mousePos);
+	return m_upgradeButton->isMouseOver(pos);
 }
 
-bool UI::retreatButtonCLicked(sf::Vector2f& mousePos)
+bool UI::retreatButtonContains(const sf::Vector2f& pos)
 {
-	return m_retreatButton->isClicked(mousePos);
+	return m_retreatButton->isMouseOver(pos);
 }
 
 void UI::resetTimer()

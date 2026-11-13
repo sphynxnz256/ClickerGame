@@ -20,7 +20,6 @@ public:
 
 	//public functions
 	bool isMouseOver(const sf::Vector2f& mousePos);
-	bool isClicked(const sf::Vector2f& mousePos);
 
 	void render(sf::RenderTarget& target, const sf::Vector2f& mousePos);
 };

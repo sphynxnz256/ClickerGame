@@ -60,8 +60,8 @@ public:
 	void setCountdownPosition(float targetX, float bossTop);
 
 	//public functions
-	bool upgradeButtonCLicked(sf::Vector2f& mousePos);
-	bool retreatButtonCLicked(sf::Vector2f& mousePos);
+	bool upgradeButtonContains(const sf::Vector2f& pos);
+	bool retreatButtonContains(const sf::Vector2f& pos);
 	void resetTimer();
 	void update(const bool bossActive, float targetX, float bossTop, float dt);
 	void render(sf::RenderTarget& target, const sf::Vector2f& mousePos,
