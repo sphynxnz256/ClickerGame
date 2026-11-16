@@ -23,7 +23,7 @@ public:
 	//getters
 	const sf::Vector2f getPosition() const;
 	const sf::FloatRect getGlobalBounds() const;
-	sf::Sprite* getSprite();
+	const sf::Sprite& getSprite() const;
 
 	//setters
 	void setPosition(const float x, const float y);

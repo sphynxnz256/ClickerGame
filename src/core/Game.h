@@ -10,7 +10,8 @@
 #include "view/HudView.h"
 #include "view/HpBarView.h"
 #include "view/BossCountdownView.h"
-#include "graphics/Animator.h"
+#include "view/DeathAnimation.h"
+#include "view/SmokeAnimation.h"
 #include "core/RNG.h"
 #include "entities/Coin.h"
 #include "view/TextureCache.h"
@@ -30,7 +31,8 @@ private:
 	HpBarView* m_hpBar;
 	BossCountdownView* m_bossCountdown;
 
-	Animator* m_animator;
+	DeathAnimation m_deathAnimation;
+	SmokeAnimation m_smokeAnimation;
 
 	RNG& m_rng;
 
@@ -43,7 +45,6 @@ private:
 	//private initiation functions
 	void initWindow();
 	void initEnemy();
-	void initAnimator();
 	void initFont();
 	void initUI();
 
@@ -66,6 +67,7 @@ private:
 	void dropCoins(int coinCount, sf::Vector2f coinStart);
 	void onEnemySpawned();
 	void onEnemyKilled();
+	void onBossEscaped();
 	void finishDeathIfDone();
 	void finishEscapeIfDone();
 

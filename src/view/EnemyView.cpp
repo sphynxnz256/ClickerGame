@@ -27,9 +27,9 @@ const sf::FloatRect EnemyView::getGlobalBounds() const
 	return m_sprite.getGlobalBounds();
 }
 
-sf::Sprite* EnemyView::getSprite()
+const sf::Sprite& EnemyView::getSprite() const
 {
-	return &m_sprite;
+	return m_sprite;
 }
 
 //setters

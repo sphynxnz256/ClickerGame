@@ -19,14 +19,6 @@ void Game::initEnemy()
 		m_window.getSize().y / 2 - m_enemyView->getGlobalBounds().size.y / 2);
 }
 
-void Game::initAnimator()
-{ 
-	m_animator = new Animator(m_textures);
-	m_animator->setSmokeSpritePosition(
-		m_window.getSize().x / 2 - m_animator->getSmokeSpriteGlobalBounds().size.x / 2,
-		m_window.getSize().y / 2 - m_animator->getSmokeSpriteGlobalBounds().size.y / 2);
-}
-
 void Game::initFont()
 {
 	if (!m_font.openFromFile("fonts/arial.ttf"))
@@ -75,6 +67,7 @@ void Game::handleClick(sf::Vector2f clickPos)
 	if (isBossFight() && m_state.phase == Phase::Fighting && m_hud->retreatButtonContains(clickPos))
 	{
 		rules::retreat(m_state);
+		onBossEscaped();
 		finishEscapeIfDone();
 		return;
 	}
@@ -119,6 +112,7 @@ void Game::updateCombat(float dt)
 		//boss escapes when its time runs out
 		if (rules::updateBossTimer(m_state, dt))
 		{
+			onBossEscaped();
 			finishEscapeIfDone();
 		}
 	}
@@ -156,7 +150,7 @@ void Game::onEnemySpawned()
 
 void Game::onEnemyKilled()
 {
-	m_animator->setSprite(m_enemyView->getSprite());
+	m_deathAnimation.start(m_enemyView->getSprite());
 
 	//coins drop
 	dropCoins(rules::rollCoinDrop(*m_state.enemy.type, m_rng), sf::Vector2f(
@@ -164,11 +158,15 @@ void Game::onEnemyKilled()
 		m_enemyView->getPosition().y + m_enemyView->getGlobalBounds().size.y / 2));
 }
 
+void Game::onBossEscaped()
+{
+	m_smokeAnimation.start(sf::Vector2f(m_window.getSize()) / 2.f);
+}
+
 void Game::finishDeathIfDone()
 {
-	if (m_animator->getAnimationEnd())
+	if (m_deathAnimation.isFinished())
 	{
-		m_animator->resetAnimator();
 		rules::finishDeath(m_state);
 		onEnemySpawned();
 	}
@@ -176,9 +174,8 @@ void Game::finishDeathIfDone()
 
 void Game::finishEscapeIfDone()
 {
-	if (m_animator->getAnimationEnd())
+	if (m_smokeAnimation.isFinished())
 	{
-		m_animator->resetAnimator();
 		rules::finishEscape(m_state);
 		onEnemySpawned();
 	}
@@ -186,17 +183,14 @@ void Game::finishEscapeIfDone()
 
 void Game::updateAnimator(float dt)
 {
-	/*triggered when the enemy reaches 0 hp, play a death animation and make sure the animation sprite stays
-	in its correct position*/
+	//death animation stays centred in the window
 	if (m_state.phase == Phase::Dying)
 	{
-		m_animator->update("death", dt);
-		m_animator->setDeathSpritePosition(m_window.getSize().x / 2 - m_animator->getDeathSpriteGlobalBounds().size.x / 2,
-			m_window.getSize().y / 2 - m_animator->getDeathSpriteGlobalBounds().size.y / 2);
+		m_deathAnimation.update(dt, sf::Vector2f(m_window.getSize()) / 2.f);
 	}
 	if (m_state.phase == Phase::Escaping)
 	{
-		m_animator->update("escape", dt);
+		m_smokeAnimation.update(dt);
 	}
 }
 
@@ -219,7 +213,14 @@ void Game::renderEnemy()
 
 void Game::renderAnimator()
 {
-	m_animator->render(m_window, m_state.phase == Phase::Dying, m_state.phase == Phase::Escaping, false);
+	if (m_state.phase == Phase::Dying)
+	{
+		m_deathAnimation.draw(m_window);
+	}
+	if (m_state.phase == Phase::Escaping)
+	{
+		m_smokeAnimation.draw(m_window);
+	}
 }
 
 void Game::renderBackground()
@@ -257,12 +258,12 @@ void Game::renderUI()
 }
 
 //constructor
-Game::Game(RNG& rng) : m_rng(rng), m_background(m_textures.get("textures/backgrounds/beach.png"))
+Game::Game(RNG& rng) : m_smokeAnimation(m_textures), m_rng(rng),
+	m_background(m_textures.get("textures/backgrounds/beach.png"))
 {
 	rules::spawnEnemy(m_state, content::regularEnemy);
 	initWindow();
 	initEnemy();
-	initAnimator();
 	initFont();
 	initUI();
 

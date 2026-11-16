@@ -40,10 +40,10 @@ Each step is one commit. After each step, the game must build and play exactly a
 7. **Rules out of `Game`.** Move the game logic into `rules/`, using only `GameState` and `content/`, with no SFML:
    - `clickDamage(const PlayerState&)` returns the player's base damage. Upgrades will plug in here later.
    - `Combat`, `Upgrades`, `BossTimer` and `Spawning`. Spawning picks the next enemy and starts the boss after 10 kills.
-8. **Events.** Add a small `Signal` listener list. Rules announce `enemyDied` (with the coin drop and position info needed) and `bossEscaped`. Coin spawning and the start of animations listen to these instead of being called directly by `Game`.
+8. **Events (deferred).** Not done in this refactor. Both reactions to an enemy dying (coins and the death animation) live in `Game`, so `Game::onEnemyKilled()` as a direct call is clearer than an event. Add a small `Signal` listener list when a second, independent system needs to react, such as sound, stats, achievements or level progress.
 9. **Views read state.** The HUD (coins, damage, upgrade cost), the HP bar (length and colour) and the countdown read `GameState` when drawing. Remove all of `UI`'s setter calls from `Game`.
 10. **Split `Animator`.** Replace it with `DeathAnimation` and `SmokeAnimation`, each with `start`, `update(dt)`, `draw` and `isFinished`. Fix the getters that return references to temporaries.
-11. **Tidy `Game`.** No raw `new`/`delete`: owned objects become plain members or `std::unique_ptr`. `Game` should only own the pieces, run the loop, route input and wire listeners.
+11. **Tidy `Game`.** No raw `new`/`delete`: owned objects become plain members or `std::unique_ptr`. `Game` should only own the pieces, run the loop, route input and call the rules.
 
 ## Rules for whoever implements a step
 
