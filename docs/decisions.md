@@ -87,6 +87,18 @@ Design decisions for ClickerGame: what was chosen, the alternatives, why, and my
 - **Why:** No raw pointer, and the animation can't leave another object's sprite at scale 0. A sprite copy is cheap, because it only refers to its texture. The smoke doesn't need to know about the window, and can appear elsewhere later.
 - **My thinking:** Agreed with both recommendations.
 
+## Game owns its parts as plain members; missing font fails fast (2026-11-16)
+- **Chose:** `Game` holds the window, enemy view, font and views as plain members built in the constructor's init list, with no destructor. A missing `arial.ttf` throws, and `main` catches it, prints a clear message and exits.
+- **Instead of:** `std::unique_ptr` members created in `init` functions, or printing an error and carrying on with a broken font.
+- **Why:** The parts always exist and are never replaced, so a pointer adds nothing. Plain members clean themselves up in reverse declaration order (the rule of zero). The game is unplayable without its font, so failing at startup is clearer than blank text.
+- **My thinking:** I want it to fail fast so I can fix the bug, not keep working with the font missing.
+
+## First enemy comes from the state (2026-11-16)
+- **Chose:** `rules::startingState()` returns a state with the first enemy already spawned. `Game` builds its enemy view from that state's enemy type.
+- **Instead of:** Naming `content::regularEnemy` separately for the view and for the state, or making the sprite optional.
+- **Why:** One source for the first enemy, so the view and the state can't disagree. It also removes the throwaway second texture pick at startup.
+- **My thinking:** Picking a texture twice looked like bad design to me, so I chose to fix it, not leave it as a minor wart.
+
 ## Future: coin pickup on mouse-over (2026-11-13)
 - **Chose:** For after the refactor, collect coins on mouse-over instead of clicking.
 - **Why:** Clicking each coin felt slow. Possible upgrades include auto-collect, pickup radius and a magnet.

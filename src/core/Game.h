@@ -20,33 +20,27 @@ class Game
 {
 private:
 	//private variables
+	//members construct in this order, so dependencies come first
+	RNG& m_rng;
 	sf::RenderWindow m_window;
 	sf::Clock m_frameClock;
 	TextureCache m_textures;
 
 	GameState m_state;
-	EnemyView* m_enemyView;
 	sf::Font m_font;
-	HudView* m_hud;
-	HpBarView* m_hpBar;
-	BossCountdownView* m_bossCountdown;
+	EnemyView m_enemyView;
+	HudView m_hud;
+	HpBarView m_hpBar;
+	BossCountdownView m_bossCountdown;
 
 	DeathAnimation m_deathAnimation;
 	SmokeAnimation m_smokeAnimation;
-
-	RNG& m_rng;
 
 	sf::Vector2f m_mousePosition;
 
 	sf::Sprite m_background;
 
 	std::vector<Coin> m_coinsVector;
-
-	//private initiation functions
-	void initWindow();
-	void initEnemy();
-	void initFont();
-	void initUI();
 
 	//private update functions
 	void polledEvents();
@@ -66,6 +60,7 @@ private:
 	bool isBossFight() const;
 	void dropCoins(int coinCount, sf::Vector2f coinStart);
 	void onEnemySpawned();
+	void centreEnemy();
 	void onEnemyKilled();
 	void onBossEscaped();
 	void finishDeathIfDone();
@@ -74,8 +69,6 @@ private:
 public:
 	//constructor
 	Game(RNG& rng);
-	//deconstuctor
-	~Game();
 
 	//getters
 	const sf::RenderWindow& getWindow() const;

@@ -9,6 +9,13 @@ namespace
 
 namespace rules
 {
+	GameState startingState()
+	{
+		GameState state;
+		spawnEnemy(state, content::regularEnemy);
+		return state;
+	}
+
 	void spawnEnemy(GameState& state, const EnemyType& type)
 	{
 		state.enemy.type = &type;

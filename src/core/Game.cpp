@@ -3,37 +3,6 @@
 
 //the game class runs the game
 
-//private initiation functions
-void Game::initWindow()
-{
-	//creates the game window
-	m_window.create(sf::VideoMode({800, 600}), "Clicker Game", sf::Style::Close | sf::Style::Titlebar);
-}
-
-void Game::initEnemy()
-{
-	//stores enemy state
-	m_enemyView = new EnemyView(*m_state.enemy.type, m_rng, m_textures);
-	m_enemyView->setPosition(
-		m_window.getSize().x /2 - m_enemyView->getGlobalBounds().size.x / 2, 
-		m_window.getSize().y / 2 - m_enemyView->getGlobalBounds().size.y / 2);
-}
-
-void Game::initFont()
-{
-	if (!m_font.openFromFile("fonts/arial.ttf"))
-	{
-		std::cout << "ERROR::GAME::INITFONT::Could not load arial.ttf\n";
-	}
-}
-
-void Game::initUI()
-{
-	m_hud = new HudView(m_font, m_state.player);
-	m_hpBar = new HpBarView();
-	m_bossCountdown = new BossCountdownView(m_font);
-}
-
 void Game::polledEvents()
 {
 	//this lets us close the window using the x button
@@ -57,14 +26,14 @@ void Game::polledEvents()
 void Game::handleClick(sf::Vector2f clickPos)
 {
 	//first match wins
-	if (m_hud->upgradeButtonContains(clickPos))
+	if (m_hud.upgradeButtonContains(clickPos))
 	{
 		rules::tryBuyDamageUpgrade(m_state.player);
 		return;
 	}
 
 	//retreat button is only visible (and clickable) during a boss fight with no animation playing
-	if (isBossFight() && m_state.phase == Phase::Fighting && m_hud->retreatButtonContains(clickPos))
+	if (isBossFight() && m_state.phase == Phase::Fighting && m_hud.retreatButtonContains(clickPos))
 	{
 		rules::retreat(m_state);
 		onBossEscaped();
@@ -94,7 +63,7 @@ void Game::handleClick(sf::Vector2f clickPos)
 	}
 
 	//attack the enemy
-	if (m_state.phase == Phase::Fighting && m_enemyView->getGlobalBounds().contains(clickPos))
+	if (m_state.phase == Phase::Fighting && m_enemyView.getGlobalBounds().contains(clickPos))
 	{
 		const bool killed = rules::hitEnemy(m_state);
 		if (killed)
@@ -142,20 +111,25 @@ void Game::dropCoins(int coinCount, sf::Vector2f coinStart)
 
 void Game::onEnemySpawned()
 {
-	m_enemyView->show(*m_state.enemy.type);
-	m_enemyView->setPosition(
-		m_window.getSize().x / 2 - m_enemyView->getGlobalBounds().size.x / 2,
-		m_window.getSize().y / 2 - m_enemyView->getGlobalBounds().size.y / 2);
+	m_enemyView.show(*m_state.enemy.type);
+	centreEnemy();
+}
+
+void Game::centreEnemy()
+{
+	m_enemyView.setPosition(
+		m_window.getSize().x / 2 - m_enemyView.getGlobalBounds().size.x / 2,
+		m_window.getSize().y / 2 - m_enemyView.getGlobalBounds().size.y / 2);
 }
 
 void Game::onEnemyKilled()
 {
-	m_deathAnimation.start(m_enemyView->getSprite());
+	m_deathAnimation.start(m_enemyView.getSprite());
 
 	//coins drop
 	dropCoins(rules::rollCoinDrop(*m_state.enemy.type, m_rng), sf::Vector2f(
-		m_enemyView->getPosition().x + m_enemyView->getGlobalBounds().size.x / 2,
-		m_enemyView->getPosition().y + m_enemyView->getGlobalBounds().size.y / 2));
+		m_enemyView.getPosition().x + m_enemyView.getGlobalBounds().size.x / 2,
+		m_enemyView.getPosition().y + m_enemyView.getGlobalBounds().size.y / 2));
 }
 
 void Game::onBossEscaped()
@@ -207,7 +181,7 @@ void Game::renderEnemy()
 {
 	if (m_state.phase == Phase::Fighting)
 	{
-		m_enemyView->render(m_window);
+		m_enemyView.render(m_window);
 	}
 }
 
@@ -242,41 +216,36 @@ void Game::renderUI()
 		static_cast<float>(sf::Mouse::getPosition(m_window).y));
 
 	const float windowWidth = static_cast<float>(m_window.getSize().x);
-	const float enemyTop = m_enemyView->getGlobalBounds().position.y;
+	const float enemyTop = m_enemyView.getGlobalBounds().position.y;
 
 	if (m_state.phase == Phase::Fighting)
 	{
-		m_hpBar->render(m_window, m_state.enemy, windowWidth, enemyTop);
+		m_hpBar.render(m_window, m_state.enemy, windowWidth, enemyTop);
 	}
 
-	m_hud->render(m_window, m_state, m_mousePosition);
+	m_hud.render(m_window, m_state, m_mousePosition);
 
 	if (isBossFight() && m_state.phase == Phase::Fighting)
 	{
-		m_bossCountdown->render(m_window, m_state.bossTimeLeft, windowWidth, enemyTop);
+		m_bossCountdown.render(m_window, m_state.bossTimeLeft, windowWidth, enemyTop);
 	}
 }
 
 //constructor
-Game::Game(RNG& rng) : m_smokeAnimation(m_textures), m_rng(rng),
+Game::Game(RNG& rng) :
+	m_rng(rng),
+	m_window(sf::VideoMode({800, 600}), "Clicker Game", sf::Style::Close | sf::Style::Titlebar),
+	m_state(rules::startingState()),
+	m_font("fonts/arial.ttf"),
+	m_enemyView(*m_state.enemy.type, m_rng, m_textures),
+	m_hud(m_font, m_state.player),
+	m_bossCountdown(m_font),
+	m_smokeAnimation(m_textures),
 	m_background(m_textures.get("textures/backgrounds/beach.png"))
 {
-	rules::spawnEnemy(m_state, content::regularEnemy);
-	initWindow();
-	initEnemy();
-	initFont();
-	initUI();
+	centreEnemy();
 
 	m_frameClock.restart();
-}
-
-//deconstructor
-Game::~Game()
-{
-	delete m_enemyView;
-	delete m_hud;
-	delete m_hpBar;
-	delete m_bossCountdown;
 }
 
 //getters
