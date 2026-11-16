@@ -12,7 +12,7 @@ public:
 	//constructors
 	Button(float positionX, float positionY, float width, float height,
 		sf::Color idleColor, sf::Color hoverColor,
-		std::string text, sf::Font& font, unsigned characterSize);
+		std::string text, const sf::Font& font, unsigned characterSize);
 
 	//getters
 	sf::FloatRect getGlobalBounds();

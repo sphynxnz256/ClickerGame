@@ -7,7 +7,9 @@
 #include "rules/BossTimer.h"
 #include "rules/Spawning.h"
 #include "state/GameState.h"
-#include "ui/UI.h"
+#include "view/HudView.h"
+#include "view/HpBarView.h"
+#include "view/BossCountdownView.h"
 #include "graphics/Animator.h"
 #include "core/RNG.h"
 #include "entities/Coin.h"
@@ -23,7 +25,10 @@ private:
 
 	GameState m_state;
 	EnemyView* m_enemyView;
-	UI* m_ui;
+	sf::Font m_font;
+	HudView* m_hud;
+	HpBarView* m_hpBar;
+	BossCountdownView* m_bossCountdown;
 
 	Animator* m_animator;
 
@@ -39,13 +44,13 @@ private:
 	void initWindow();
 	void initEnemy();
 	void initAnimator();
+	void initFont();
 	void initUI();
 
 	//private update functions
 	void polledEvents();
 	void handleClick(sf::Vector2f clickPos);
 	void updateCombat(float dt);
-	void updateUI();
 	void updateAnimator(float dt);
 	void updateCoins(float dt);
 
@@ -63,7 +68,6 @@ private:
 	void onEnemyKilled();
 	void finishDeathIfDone();
 	void finishEscapeIfDone();
-	void updateHpBar();
 
 public:
 	//constructor

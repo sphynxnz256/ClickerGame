@@ -1,10 +1,10 @@
 #include "stdafx.h"
-#include "ui/Button.h"
+#include "view/Button.h"
 
 //constructors
 Button::Button(float positionX, float positionY, float width, float height,
 	sf::Color idleColor, sf::Color hoverColor, 
-	std::string text, sf::Font& font, unsigned characterSize)
+	std::string text, const sf::Font& font, unsigned characterSize)
 	: m_idleColor(idleColor), m_hoverColor(hoverColor), m_buttonText(font, text, characterSize)
 {
 	m_shape.setPosition({positionX, positionY});

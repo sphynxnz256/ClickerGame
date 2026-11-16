@@ -27,12 +27,19 @@ void Game::initAnimator()
 		m_window.getSize().y / 2 - m_animator->getSmokeSpriteGlobalBounds().size.y / 2);
 }
 
+void Game::initFont()
+{
+	if (!m_font.openFromFile("fonts/arial.ttf"))
+	{
+		std::cout << "ERROR::GAME::INITFONT::Could not load arial.ttf\n";
+	}
+}
+
 void Game::initUI()
 {
-	//create an hp bar and set its position above the enemy
-	m_ui = new UI(static_cast<float>(m_window.getSize().x), m_enemyView->getGlobalBounds().position.y,
-		m_state.player.coins, m_state.player.damage, m_state.player.upgradeCost,
-		m_enemyView->getGlobalBounds().position.y);
+	m_hud = new HudView(m_font, m_state.player);
+	m_hpBar = new HpBarView();
+	m_bossCountdown = new BossCountdownView(m_font);
 }
 
 void Game::polledEvents()
@@ -58,19 +65,14 @@ void Game::polledEvents()
 void Game::handleClick(sf::Vector2f clickPos)
 {
 	//first match wins
-	if (m_ui->upgradeButtonContains(clickPos))
+	if (m_hud->upgradeButtonContains(clickPos))
 	{
-		if (rules::tryBuyDamageUpgrade(m_state.player))
-		{
-			m_ui->setDamageText(m_state.player.damage);
-			m_ui->setCoinsText(m_state.player.coins);
-			m_ui->setUpgradeCostText(m_state.player.upgradeCost);
-		}
+		rules::tryBuyDamageUpgrade(m_state.player);
 		return;
 	}
 
 	//retreat button is only visible (and clickable) during a boss fight with no animation playing
-	if (isBossFight() && m_state.phase == Phase::Fighting && m_ui->retreatButtonContains(clickPos))
+	if (isBossFight() && m_state.phase == Phase::Fighting && m_hud->retreatButtonContains(clickPos))
 	{
 		rules::retreat(m_state);
 		finishEscapeIfDone();
@@ -85,7 +87,6 @@ void Game::handleClick(sf::Vector2f clickPos)
 		if (coin.isMouseOver(clickPos) && coin.checkPosition())
 		{
 			rules::collectCoin(m_state.player, coin.getCoinValue());
-			m_ui->setCoinsText(m_state.player.coins);
 			collected = true;
 		}
 		else
@@ -103,7 +104,6 @@ void Game::handleClick(sf::Vector2f clickPos)
 	if (m_state.phase == Phase::Fighting && m_enemyView->getGlobalBounds().contains(clickPos))
 	{
 		const bool killed = rules::hitEnemy(m_state);
-		updateHpBar();
 		if (killed)
 		{
 			onEnemyKilled();
@@ -152,12 +152,6 @@ void Game::onEnemySpawned()
 	m_enemyView->setPosition(
 		m_window.getSize().x / 2 - m_enemyView->getGlobalBounds().size.x / 2,
 		m_window.getSize().y / 2 - m_enemyView->getGlobalBounds().size.y / 2);
-
-	//set up the hp bar for the new enemy
-	m_ui->setHpBarMaxLength(isBossFight());
-	m_ui->setHpBarPosition(static_cast<float>(m_window.getSize().x), m_enemyView->getGlobalBounds().position.y);
-	m_ui->setHpBarLength(m_state.enemy.hp, m_state.enemy.type->hpMax);
-	m_ui->setHpBarColor(m_state.enemy.hp, m_state.enemy.type->hpMax);
 }
 
 void Game::onEnemyKilled()
@@ -188,17 +182,6 @@ void Game::finishEscapeIfDone()
 		rules::finishEscape(m_state);
 		onEnemySpawned();
 	}
-}
-
-void Game::updateHpBar()
-{
-	m_ui->setHpBarColor(m_state.enemy.hp, m_state.enemy.type->hpMax);
-	m_ui->setHpBarLength(m_state.enemy.hp, m_state.enemy.type->hpMax);
-}
-
-void Game::updateUI()
-{
-	m_ui->update(isBossFight(), static_cast<float>(m_window.getSize().x), m_enemyView->getGlobalBounds().position.y, m_state.bossTimeLeft);
 }
 
 void Game::updateAnimator(float dt)
@@ -256,7 +239,21 @@ void Game::renderUI()
 {
 	m_mousePosition = sf::Vector2f(static_cast<float>(sf::Mouse::getPosition(m_window).x),
 		static_cast<float>(sf::Mouse::getPosition(m_window).y));
-	m_ui->render(m_window, m_mousePosition, isBossFight(), m_state.phase == Phase::Escaping, m_state.phase == Phase::Dying);
+
+	const float windowWidth = static_cast<float>(m_window.getSize().x);
+	const float enemyTop = m_enemyView->getGlobalBounds().position.y;
+
+	if (m_state.phase == Phase::Fighting)
+	{
+		m_hpBar->render(m_window, m_state.enemy, windowWidth, enemyTop);
+	}
+
+	m_hud->render(m_window, m_state, m_mousePosition);
+
+	if (isBossFight() && m_state.phase == Phase::Fighting)
+	{
+		m_bossCountdown->render(m_window, m_state.bossTimeLeft, windowWidth, enemyTop);
+	}
 }
 
 //constructor
@@ -266,6 +263,7 @@ Game::Game(RNG& rng) : m_rng(rng), m_background(m_textures.get("textures/backgro
 	initWindow();
 	initEnemy();
 	initAnimator();
+	initFont();
 	initUI();
 
 	m_frameClock.restart();
@@ -275,7 +273,9 @@ Game::Game(RNG& rng) : m_rng(rng), m_background(m_textures.get("textures/backgro
 Game::~Game()
 {
 	delete m_enemyView;
-	delete m_ui;
+	delete m_hud;
+	delete m_hpBar;
+	delete m_bossCountdown;
 }
 
 //getters
@@ -293,7 +293,6 @@ void Game::update()
 	updateCombat(dt);
 	updateAnimator(dt);
 	updateCoins(dt);
-	updateUI();
 }
 
 void Game::render()

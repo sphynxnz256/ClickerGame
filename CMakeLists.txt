@@ -28,9 +28,11 @@ add_executable(ClickerGame
     src/rules/Combat.cpp
     src/rules/Spawning.cpp
     src/rules/Upgrades.cpp
-    src/ui/Button.cpp
-    src/ui/UI.cpp
+    src/view/BossCountdownView.cpp
+    src/view/Button.cpp
     src/view/EnemyView.cpp
+    src/view/HpBarView.cpp
+    src/view/HudView.cpp
     src/view/NumberFormat.cpp
     src/view/TextureCache.cpp
 )
