@@ -3,16 +3,25 @@
 
 int main()
 {
-	//create a reusable random number generator
-	RNG rng;
-
-	Game game(rng);
-
-	//main game loop
-	while (game.getWindow().isOpen())
+	try
 	{
-		game.update();
-		game.render();
+		//create a reusable random number generator
+		RNG rng;
+
+		Game game(rng);
+
+		//main game loop
+		while (game.getWindow().isOpen())
+		{
+			game.update();
+			game.render();
+		}
+	}
+	catch (const std::exception& e)
+	{
+		//e.g. a missing font or texture file
+		std::cerr << "ERROR: " << e.what() << "\n";
+		return 1;
 	}
 
 	return 0;

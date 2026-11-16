@@ -2,7 +2,7 @@
 class RNG
 {
 private:
-	std::mt19937 generator; // Mersenne Twister 19937 engine
+	std::mt19937 m_generator; // Mersenne Twister 19937 engine
 
 public:
 	//constructor

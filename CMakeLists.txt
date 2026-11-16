@@ -22,13 +22,20 @@ add_executable(ClickerGame
     src/core/Game.cpp
     src/core/Level.cpp
     src/core/RNG.cpp
-    src/entities/Boss.cpp
     src/entities/Coin.cpp
-    src/entities/Enemy.cpp
-    src/entities/Player.cpp
-    src/graphics/Animator.cpp
-    src/ui/Button.cpp
-    src/ui/UI.cpp
+    src/rules/BossTimer.cpp
+    src/rules/Combat.cpp
+    src/rules/Spawning.cpp
+    src/rules/Upgrades.cpp
+    src/view/BossCountdownView.cpp
+    src/view/Button.cpp
+    src/view/DeathAnimation.cpp
+    src/view/EnemyView.cpp
+    src/view/HpBarView.cpp
+    src/view/HudView.cpp
+    src/view/NumberFormat.cpp
+    src/view/SmokeAnimation.cpp
+    src/view/TextureCache.cpp
 )
 
 target_precompile_headers(ClickerGame PRIVATE src/stdafx.h)

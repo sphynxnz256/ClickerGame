@@ -1,86 +1,74 @@
 #pragma once
 
-#include "entities/Enemy.h"
-#include "entities/Player.h"
-#include "entities/Boss.h"
-#include "ui/UI.h"
-#include "graphics/Animator.h"
+#include "content/EnemyTypes.h"
+#include "view/EnemyView.h"
+#include "rules/Combat.h"
+#include "rules/Upgrades.h"
+#include "rules/BossTimer.h"
+#include "rules/Spawning.h"
+#include "state/GameState.h"
+#include "view/HudView.h"
+#include "view/HpBarView.h"
+#include "view/BossCountdownView.h"
+#include "view/DeathAnimation.h"
+#include "view/SmokeAnimation.h"
 #include "core/RNG.h"
 #include "entities/Coin.h"
+#include "view/TextureCache.h"
 
 class Game
 {
 private:
 	//private variables
-	sf::RenderWindow window;
+	//members construct in this order, so dependencies come first
+	RNG& m_rng;
+	sf::RenderWindow m_window;
+	sf::Clock m_frameClock;
+	TextureCache m_textures;
 
-	Player* player;
-	Enemy* enemy;
-	Boss* boss;
-	UI* ui;
+	GameState m_state;
+	sf::Font m_font;
+	EnemyView m_enemyView;
+	HudView m_hud;
+	HpBarView m_hpBar;
+	BossCountdownView m_bossCountdown;
 
-	Animator* animator;
-	bool playDeathAnimation;
-	bool playEscapeAnimation;
-	bool playCoinAnimation;
+	DeathAnimation m_deathAnimation;
+	SmokeAnimation m_smokeAnimation;
 
-	RNG& rng;
+	sf::Vector2f m_mousePosition;
 
-	bool mouseHeld;
-	sf::Vector2f mousePosition;
+	sf::Sprite m_background;
 
-	sf::Texture backgroundTexture;
-	sf::Sprite background;
-
-	int killCounter;
-	bool bossActive;
-	int coinsToDrop;
-	std::vector<Coin> coinsVector;
-	std::shared_ptr<sf::Texture> sharedCoinTexture;
-	sf::Vector2f coinStart;
-	sf::Vector2f coinEnd;
-
-	//private initiation functions
-	void initWindow();
-	void initPlayer();
-	void initEnemy();
-	void initBoss();
-	void initAnimator();
-	void initBackground();
-	void initCoins();
-	void initUI();
+	std::vector<Coin> m_coinsVector;
 
 	//private update functions
 	void polledEvents();
-	void updateCombat();
-	void updateUI();
-	void updateAnimator();
-	void updateCoins();
+	void handleClick(sf::Vector2f clickPos);
+	void updateCombat(float dt);
+	void updateAnimator(float dt);
+	void updateCoins(float dt);
 
 	//private rendering functions
 	void renderEnemy();
-	void renderBoss();
 	void renderAnimator();
 	void renderBackground();
 	void renderCoins();
 	void renderUI();
 
 	//other private functions
-	void bossTakeDamage();
-	void enemyTakeDamage();
-	void bossEscape();
-	void enemyDeath();
-	void dropCoins(std::pair<int, int> coins_to_drop, sf::Vector2f coin_start);
-	void setUpBoss();
-	void bossDeath();
-	void upgradeDamage();
-	void retreat();
+	bool isBossFight() const;
+	void dropCoins(int coinCount, sf::Vector2f coinStart);
+	void onEnemySpawned();
+	void centreEnemy();
+	void onEnemyKilled();
+	void onBossEscaped();
+	void finishDeathIfDone();
+	void finishEscapeIfDone();
 
 public:
 	//constructor
 	Game(RNG& rng);
-	//deconstuctor
-	~Game();
 
 	//getters
 	const sf::RenderWindow& getWindow() const;

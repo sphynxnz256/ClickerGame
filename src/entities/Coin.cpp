@@ -2,145 +2,143 @@
 #include "entities/Coin.h"
 
 //private functions
-void Coin::initVariables(const sf::Vector2u& target_size)
+void Coin::initVariables(const sf::Vector2u& targetSize)
 {	
-	this->coinValue = 1;
-	this->endPoint = sf::Vector2f(static_cast<float>(this->rng.generateRandomNum(20, 
-		target_size.x - sprite.getGlobalBounds().size.x - 20)),
-		static_cast<float>(target_size.y) - 150.f);
+	m_coinValue = 1.0;
+	m_endPoint = sf::Vector2f(static_cast<float>(m_rng.generateRandomNum(20, 
+		targetSize.x - m_sprite.getGlobalBounds().size.x - 20)),
+		static_cast<float>(targetSize.y) - 150.f);
 }
 
-void Coin::initSprite(std::shared_ptr<sf::Texture> shared_texture)
+void Coin::initSprite()
 {
-	this->sprite.setScale({0.1f, 0.1f});
-	this->sprite.setPosition(sf::Vector2f(this->startPoint.x - this->sprite.getGlobalBounds().size.x / 2, 
-		this->startPoint.y - this->sprite.getGlobalBounds().size.y / 2));
+	m_sprite.setScale({0.1f, 0.1f});
+	m_sprite.setPosition(sf::Vector2f(m_startPoint.x - m_sprite.getGlobalBounds().size.x / 2, 
+		m_startPoint.y - m_sprite.getGlobalBounds().size.y / 2));
 }
 
 void Coin::initControlPoint()
 {
 	//set the control point so its on the same side as the coin ends up on
-	if (this->endPoint.x > 400.f)
+	if (m_endPoint.x > 400.f)
 	{
-		this->controlPoint = sf::Vector2f(600.f, 200.f);
+		m_controlPoint = sf::Vector2f(600.f, 200.f);
 	}
 	else
 	{
-		this->controlPoint = sf::Vector2f(200.f, 200.f);
+		m_controlPoint = sf::Vector2f(200.f, 200.f);
 	}
 }
 
 void Coin::initAnimationSpeed()
 {
 	//smooth the speed out relative to the center
-	if (this->endPoint.x < 100.f || this->endPoint.x > 700.f)
+	if (m_endPoint.x < 100.f || m_endPoint.x > 700.f)
 	{
-		this->animationSpeed = 600.f;
+		m_animationSpeed = 600.f;
 	}
-	else if (this->endPoint.x < 200.f || this->endPoint.x > 600.f)
+	else if (m_endPoint.x < 200.f || m_endPoint.x > 600.f)
 	{
-		this->animationSpeed = 500.f;
+		m_animationSpeed = 500.f;
 	}
-	else if (this->endPoint.x < 300.f || this->endPoint.x > 500.f)
+	else if (m_endPoint.x < 300.f || m_endPoint.x > 500.f)
 	{
-		this->animationSpeed = 400.f;
+		m_animationSpeed = 400.f;
 	}
 	else
 	{
-		this->animationSpeed = 300.f;
+		m_animationSpeed = 300.f;
 	}
 }
 
 void Coin::initDistanceToTravel()
 {
 	//calculate distance
-	this->distanceToTravel = std::sqrt((this->endPoint.x - this->startPoint.x) *
-		(this->endPoint.x - this->startPoint.x) +
-		(this->endPoint.y - this->startPoint.y) *
-		(this->endPoint.y - this->startPoint.y));
+	m_distanceToTravel = std::sqrt((m_endPoint.x - m_startPoint.x) *
+		(m_endPoint.x - m_startPoint.x) +
+		(m_endPoint.y - m_startPoint.y) *
+		(m_endPoint.y - m_startPoint.y));
 }
 
 void Coin::initAnimation()
 {
-	this->animationEnded = false;
-	this->deltaTime = this->dtClock.restart().asSeconds();
-	this->timeElapsed = 0.f;
+	m_animationEnded = false;
+	m_timeElapsed = 0.f;
 }
 
-void Coin::updateLocation()
+void Coin::updateLocation(float dt)
 {
-	if (!this->animationEnded)
+	if (!m_animationEnded)
 	{
 		//plays animation of coin dropping from killed enemy
-		this->deltaTime = this->dtClock.restart().asSeconds();
-		this->timeElapsed += this->deltaTime;
+		m_timeElapsed += dt;
 
 		//calculate progress based on speed
-		float progress = (this->timeElapsed * this->animationSpeed) /
-			this->distanceToTravel;
+		float progress = (m_timeElapsed * m_animationSpeed) /
+			m_distanceToTravel;
 
 
 		//check if animation is finished
 		if (progress >= 1.f)
 		{
 			progress = 1.f;
-			this->animationEnded = true;
+			m_animationEnded = true;
 		}
 
 		//calc bezier interpilation
-		sf::Vector2f position = (1 - progress) * (1 - progress) * this->startPoint +
-			2 * (1 - progress) * progress * this->controlPoint +
-			progress * progress * this->endPoint;
-		this->sprite.setPosition(position);
+		sf::Vector2f position = (1 - progress) * (1 - progress) * m_startPoint +
+			2 * (1 - progress) * progress * m_controlPoint +
+			progress * progress * m_endPoint;
+		m_sprite.setPosition(position);
 	}
 }
 
 //constructor
-Coin::Coin(RNG& rng, const sf::Vector2u& target_size, std::shared_ptr<sf::Texture> shared_texture,
-	sf::Vector2f start_point)
-	: texture(shared_texture), sprite(*shared_texture), rng(rng), startPoint(start_point)
+Coin::Coin(RNG& rng, const sf::Vector2u& targetSize, const sf::Texture& texture,
+	sf::Vector2f startPoint)
+	: m_sprite(texture), m_rng(rng), m_startPoint(startPoint)
 {
-	this->initSprite(shared_texture);
-	this->initVariables(target_size);
-	this->initControlPoint();
-	this->initAnimationSpeed();
-	this->initDistanceToTravel();
-	this->initAnimation();
+	initSprite();
+	initVariables(targetSize);
+	initControlPoint();
+	initAnimationSpeed();
+	initDistanceToTravel();
+	initAnimation();
 	
 }
 
 //getters
-int Coin::getCoinValue()
+double Coin::getCoinValue()
 {
-	return coinValue;
+	return m_coinValue;
 }
 
 sf::Vector2f Coin::getPosition()
 {
-	return this->sprite.getPosition();
+	return m_sprite.getPosition();
 }
 
 //public functions
-bool Coin::isMouseOver(const sf::Vector2f& mouse_pos)
+bool Coin::isMouseOver(const sf::Vector2f& mousePos)
 {
-	return sprite.getGlobalBounds().contains(mouse_pos);
+	return m_sprite.getGlobalBounds().contains(mousePos);
 }
 
 bool Coin::checkPosition()
 {
-	if (this->sprite.getPosition() == this->endPoint)
+	if (m_sprite.getPosition() == m_endPoint)
 	{
 		return true;
 	}
 	return false;
 }
 
-void Coin::update()
+void Coin::update(float dt)
 {
-	this->updateLocation();
+	updateLocation(dt);
 }
 
 void Coin::render(sf::RenderTarget& target)
 {
-	target.draw(sprite);
+	target.draw(m_sprite);
 }

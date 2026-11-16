@@ -3,491 +3,280 @@
 
 //the game class runs the game
 
-//private initiation functions
-void Game::initWindow()
-{
-	//creates the game window
-	this->window.create(sf::VideoMode({800, 600}), "Clicker Game", sf::Style::Close | sf::Style::Titlebar);
-}
-
-void Game::initPlayer()
-{
-	//holds player state
-	this->player = new Player();
-	this->mouseHeld = false;
-}
-
-void Game::initEnemy()
-{
-	//stores enemy state
-	this->enemy = new Enemy(rng);
-	this->enemy->setPosition(
-		this->window.getSize().x /2 - this->enemy->getGlobalBounds().size.x / 2, 
-		this->window.getSize().y / 2 - this->enemy->getGlobalBounds().size.y / 2);
-}
-
-void Game::initBoss()
-{
-	this->killCounter = 0;
-	this->boss = new Boss();
-	this->boss->setPosition( 
-		this->window.getSize().x / 2 - this->boss->getGlobalBounds().size.x / 2, 
-		this->window.getSize().y / 2 - this->boss->getGlobalBounds().size.y / 2); 
-	this->bossActive = false;
-}
-
-void Game::initAnimator()
-{ 
-	this->animator = new Animator(*this->sharedCoinTexture);
-	this->playDeathAnimation = false;
-	this->playEscapeAnimation = false;
-	this->animator->setSmokeSpritePosition(
-		this->window.getSize().x / 2 - this->animator->getSmokeSpriteGlobalBounds().size.x / 2,
-		this->window.getSize().y / 2 - this->animator->getSmokeSpriteGlobalBounds().size.y / 2);
-}
-
-void Game::initBackground()
-{
-	//sets the background
-	if (!this->backgroundTexture.loadFromFile("textures/backgrounds/beach.png"))
-	{
-		std::cout << "ERROR::GAME::INITBACKGROUND::Can't load beach.png";
-	}
-	this->background.setTexture(backgroundTexture, true);
-}
-
-void Game::initCoins()
-{
-	this->sharedCoinTexture = std::make_shared<sf::Texture>();
-	if (!this->sharedCoinTexture->loadFromFile("textures/coin.png"))
-	{
-		std::cout << "ERROR::COIN::INITTEXTURE::Failed to load coin.png\n";
-	}
-}
-
-void Game::initUI()
-{
-	//create an hp bar and set its position above the enemy
-	this->ui = new UI(static_cast<float>(this->window.getSize().x), this->enemy->getGlobalBounds().position.y,
-		this->player->getCoins(), this->player->getDamage(), this->player->getUpgradeCost(),
-		this->boss->getGlobalBounds().position.y);
-}
-
 void Game::polledEvents()
 {
 	//this lets us close the window using the x button
-	while (const std::optional event = this->window.pollEvent())
+	while (const std::optional event = m_window.pollEvent())
 	{
 		if (event->is<sf::Event::Closed>())
 		{
-			window.close();
+			m_window.close();
+		}
+		else if (const auto* pressed = event->getIf<sf::Event::MouseButtonPressed>())
+		{
+			if (pressed->button == sf::Mouse::Button::Left)
+			{
+				handleClick(sf::Vector2f(static_cast<float>(pressed->position.x),
+					static_cast<float>(pressed->position.y)));
+			}
+		}
+	}
+}
+
+void Game::handleClick(sf::Vector2f clickPos)
+{
+	//first match wins
+	if (m_hud.upgradeButtonContains(clickPos))
+	{
+		rules::tryBuyDamageUpgrade(m_state.player);
+		return;
+	}
+
+	//retreat button is only visible (and clickable) during a boss fight with no animation playing
+	if (isBossFight() && m_state.phase == Phase::Fighting && m_hud.retreatButtonContains(clickPos))
+	{
+		rules::retreat(m_state);
+		onBossEscaped();
+		finishEscapeIfDone();
+		return;
+	}
+
+	//collect any coins under the click
+	bool collected = false;
+	std::vector<Coin> coinsToKeep;
+	for (auto& coin : m_coinsVector)
+	{
+		if (coin.isMouseOver(clickPos) && coin.checkPosition())
+		{
+			rules::collectCoin(m_state.player, coin.getCoinValue());
+			collected = true;
+		}
+		else
+		{
+			coinsToKeep.push_back(coin);
+		}
+	}
+	m_coinsVector.swap(coinsToKeep);
+	if (collected)
+	{
+		return;
+	}
+
+	//attack the enemy
+	if (m_state.phase == Phase::Fighting && m_enemyView.getGlobalBounds().contains(clickPos))
+	{
+		const bool killed = rules::hitEnemy(m_state);
+		if (killed)
+		{
+			onEnemyKilled();
 		}
 	}
 }
 
 //private update functions
-void Game::updateCombat()
+void Game::updateCombat(float dt)
 {
-	//check no animations are playing
-	if(!this->playDeathAnimation && !this->playEscapeAnimation)
+	if (m_state.phase == Phase::Fighting)
 	{
-		//if fighting boss, check to see if boss escapes
-		if (this->bossActive && this->ui->getTimeLeft() <= 0.f)
+		//boss escapes when its time runs out
+		if (rules::updateBossTimer(m_state, dt))
 		{
-			this->playEscapeAnimation = true;
-			this->bossEscape();			
-		}
-		/*this checks to see if the player is attacking and determines how much damage the enemy takes. it then
-		also updates the hp bar in the ui*/
-		else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
-		{
-			if (!this->mouseHeld)
-			{
-				this->mousePosition = sf::Vector2f(static_cast<float>(sf::Mouse::getPosition(this->window).x),
-					static_cast<float>(sf::Mouse::getPosition(this->window).y));
-
-				if (this->bossActive && this->boss->getGlobalBounds().contains(this->mousePosition))
-				{
-					this->mouseHeld = true;
-					this->bossTakeDamage();
-				}
-				//if fighting a regular enemy
-				else if (this->enemy->getGlobalBounds().contains(this->mousePosition))
-				{
-					this->mouseHeld = true;
-					this->enemyTakeDamage();
-				}
-			}
-		}
-		else
-		{
-			this->mouseHeld = false;
-		}
-
-		//if fighting boss and its dead, play death animation
-		if (this->bossActive && this->boss->isDead())
-		{
-			this->animator->setSprite(this->boss->getSprite());
-			this->playDeathAnimation = true;
-
-			//coins drop
-			this->dropCoins(this->boss->getCoinsToDrop(), sf::Vector2f(
-				this->boss->getPosition().x + this->boss->getGlobalBounds().size.x / 2,
-				this->boss->getPosition().y + this->boss->getGlobalBounds().size.y / 2));
-
-			this->bossDeath();
-		}
-		//if fighting regular enemy and its dead, play death animation
-		else if (this->enemy->isDead())
-		{
-			this->animator->setSprite(this->enemy->getSprite());
-			this->playDeathAnimation = true;
-
-			//coins drop
-			this->dropCoins(this->enemy->getCoinsToDrop(), sf::Vector2f(
-				this->enemy->getPosition().x + this->enemy->getGlobalBounds().size.x / 2,
-				this->enemy->getPosition().y + this->enemy->getGlobalBounds().size.y / 2));
-
-			this->enemyDeath();
+			onBossEscaped();
+			finishEscapeIfDone();
 		}
 	}
-	else if (this->playDeathAnimation)
+	else if (m_state.phase == Phase::Dying)
 	{
-		if(this->bossActive)
-		{
-			this->bossDeath();
-
-		}
-		else
-		{
-			this->enemyDeath();
-		}
+		finishDeathIfDone();
 	}
 	else
 	{
-		this->bossEscape();
+		finishEscapeIfDone();
 	}
 }
 
-void Game::bossTakeDamage()
+bool Game::isBossFight() const
 {
-	//boss takes damage
-	this->boss->takeDamage(this->player->getDamage());
-	this->ui->setHpBarColor(this->boss->getHpCurrent(), this->boss->getHpMax());
-	this->ui->setHpBarLength(this->boss->getHpCurrent(), this->boss->getHpMax());
+	return m_state.enemy.type->isBoss;
 }
 
-void Game::enemyTakeDamage()
+void Game::dropCoins(int coinCount, sf::Vector2f coinStart)
 {
-	this->enemy->takeDamage(this->player->getDamage());
-	this->ui->setHpBarColor(this->enemy->getHpCurrent(), this->enemy->getHpMax());
-	this->ui->setHpBarLength(this->enemy->getHpCurrent(), this->enemy->getHpMax());
-}
-
-void Game::bossEscape()
-{
-	//check if animation is finished
-	if (this->animator->getAnimationEnd())
+	for (int i = 0; i < coinCount; i++)
 	{
-		//reset timer
-		this->ui->resetTimer();
-
-		//reset animator
-		this->animator->resetAnimator();
-		this->playEscapeAnimation = false;
-
-		//reset boss
-		this->boss->resetBoss();
-		this->bossActive = false;
-
-		//set hp bar for next enemy
-		this->ui->setHpBarMaxLength(this->bossActive); 
-		this->ui->setHpBarLength(this->enemy->getHpCurrent(), this->enemy->getHpMax()); 
-		this->ui->setHpBarColor(this->enemy->getHpCurrent(), this->enemy->getHpMax()); 
-		this->ui->setHpBarPosition(static_cast<float>(this->window.getSize().x), this->enemy->getGlobalBounds().position.y);
+		Coin tempCoin(m_rng, m_window.getSize(), m_textures.get("textures/coin.png"), coinStart);
+		m_coinsVector.push_back(Coin(tempCoin));
 	}
 }
 
-void Game::enemyDeath()
+void Game::onEnemySpawned()
 {
-	//check if animation is finished
-	if (this->animator->getAnimationEnd())
-	{
-		//update kill count
-		this->killCounter++;
-
-		//reset the animator
-		this->playDeathAnimation = false;
-		this->animator->resetAnimator();
-
-		//set up new random enemy
-		this->enemy->resetEnemy();
-		this->enemy->setPosition(
-			this->window.getSize().x / 2 - this->enemy->getGlobalBounds().size.x / 2,
-			this->window.getSize().y / 2 - this->enemy->getGlobalBounds().size.y / 2);
-		
-		//reset health bars for new enemy
-		this->ui->setHpBarLength(this->enemy->getHpCurrent(), this->enemy->getHpMax()); 
-		this->ui->setHpBarColor(this->enemy->getHpCurrent(), this->enemy->getHpMax());
-
-		//check if enough enemies are killed for boss to spawn
-		if (this->killCounter >= 10)
-		{
-			this->setUpBoss();
-			this->killCounter = 0;
-		}
-	}		
+	m_enemyView.show(*m_state.enemy.type);
+	centreEnemy();
 }
 
-void Game::dropCoins(std::pair<int, int> coins_to_drop, sf::Vector2f coin_start)
+void Game::centreEnemy()
 {
-	this->coinsToDrop = rng.generateRandomNum(coins_to_drop.first, coins_to_drop.second);
-	this->playCoinAnimation = true;
-	for (size_t i = 0; i < this->coinsToDrop; i++)
-	{
-		Coin temp_coin(this->rng, this->window.getSize(), this->sharedCoinTexture, coin_start);
-		this->coinsVector.push_back(Coin(temp_coin));
-	}	
+	m_enemyView.setPosition(
+		m_window.getSize().x / 2 - m_enemyView.getGlobalBounds().size.x / 2,
+		m_window.getSize().y / 2 - m_enemyView.getGlobalBounds().size.y / 2);
 }
 
-void Game::setUpBoss()
+void Game::onEnemyKilled()
 {
-	//active boss
-	this->bossActive = true;	
+	m_deathAnimation.start(m_enemyView.getSprite());
 
-	//set hp bars for boss
-	this->ui->setHpBarMaxLength(this->bossActive);
-	this->ui->setHpBarPosition(static_cast<float>(this->window.getSize().x), this->boss->getGlobalBounds().position.y);
-	this->ui->setHpBarLength(this->enemy->getHpCurrent(), this->enemy->getHpMax()); 
+	//coins drop
+	dropCoins(rules::rollCoinDrop(*m_state.enemy.type, m_rng), sf::Vector2f(
+		m_enemyView.getPosition().x + m_enemyView.getGlobalBounds().size.x / 2,
+		m_enemyView.getPosition().y + m_enemyView.getGlobalBounds().size.y / 2));
 }
 
-void Game::bossDeath()
+void Game::onBossEscaped()
 {
-	//check if animation is finished
-	if (this->animator->getAnimationEnd())
+	m_smokeAnimation.start(sf::Vector2f(m_window.getSize()) / 2.f);
+}
+
+void Game::finishDeathIfDone()
+{
+	if (m_deathAnimation.isFinished())
 	{
-		//reset timer
-		this->ui->resetTimer();
-
-		//reset animator
-		this->animator->resetAnimator();
-		this->playDeathAnimation = false;
-
-		//reset boss for next boss fight
-		this->bossActive = false;
-		this->boss->resetBoss();		
-		this->boss->setPosition(
-			this->window.getSize().x / 2 - this->boss->getGlobalBounds().size.x / 2,
-			this->window.getSize().y / 2 - this->boss->getGlobalBounds().size.y / 2);
-
-		//set the hp bar for next enemy
-		this->ui->setHpBarMaxLength(this->bossActive);
-		this->ui->setHpBarLength(this->boss->getHpCurrent(), this->boss->getHpMax());
-		this->ui->setHpBarColor(this->boss->getHpCurrent(), this->boss->getHpMax());
-		this->ui->setHpBarPosition(static_cast<float>(this->window.getSize().x), this->enemy->getGlobalBounds().position.y);
+		rules::finishDeath(m_state);
+		onEnemySpawned();
 	}
 }
 
-void Game::updateUI()
+void Game::finishEscapeIfDone()
 {
-	/*when clicked and when the player has enough coins, upgrade the players damage and set the UI
-	to reflect this*/
-	this->mousePosition = sf::Vector2f(static_cast<float>(sf::Mouse::getPosition(this->window).x),
-		static_cast<float>(sf::Mouse::getPosition(this->window).y));
-	if (this->ui->upgradeButtonCLicked(mousePosition))
+	if (m_smokeAnimation.isFinished())
 	{
-		this->upgradeDamage();
-	}
-
-	if (this->ui->retreatButtonCLicked(mousePosition))
-	{
-		this->retreat();
-	}
-
-	this->ui->update(this->bossActive, static_cast<float>(this->window.getSize().x), this->boss->getGlobalBounds().position.y);
-}
-
-void Game::upgradeDamage()
-{
-	if (!this->mouseHeld)
-	{
-		this->mouseHeld = true;
-		if (this->player->canUpgrade())
-		{
-			this->player->upgradeDamage();
-			this->ui->setDamageText(this->player->getDamage());
-			this->ui->setCoinsText(this->player->getCoins());
-			this->ui->setUpgradeCostText(this->player->getUpgradeCost());
-		}
-	}
-	else
-	{
-		this->mouseHeld = false;
+		rules::finishEscape(m_state);
+		onEnemySpawned();
 	}
 }
 
-void Game::retreat()
+void Game::updateAnimator(float dt)
 {
-	if (!this->mouseHeld)
+	//death animation stays centred in the window
+	if (m_state.phase == Phase::Dying)
 	{
-		this->mouseHeld = true;
-		this->playEscapeAnimation = true;
-		this->bossEscape();
+		m_deathAnimation.update(dt, sf::Vector2f(m_window.getSize()) / 2.f);
 	}
-	else
+	if (m_state.phase == Phase::Escaping)
 	{
-		this->mouseHeld = false;
+		m_smokeAnimation.update(dt);
 	}
 }
 
-void Game::updateAnimator()
+void Game::updateCoins(float dt)
 {
-	/*triggered when the enemy reaches 0 hp, play a death animation and make sure the animation sprite stays
-	in its correct position*/
-	if (this->playDeathAnimation)
+	for (Coin& coin : m_coinsVector)
 	{
-		this->animator->update("death");
-		this->animator->setDeathSpritePosition(this->window.getSize().x / 2 - this->animator->getDeathSpriteGlobalBounds().size.x / 2,
-			this->window.getSize().y / 2 - this->animator->getDeathSpriteGlobalBounds().size.y / 2);
-	}
-	if (this->playEscapeAnimation)
-	{
-		this->animator->update("escape");
-	}
-}
-
-void Game::updateCoins()
-{
-	for (Coin& coin : coinsVector)
-	{
-		coin.update();
-	}
-
-	static bool click_processed = false;
-	if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) 
-	{
-		if (!click_processed)
-		{
-			this->mousePosition = sf::Vector2f(static_cast<float>(sf::Mouse::getPosition(this->window).x),
-				static_cast<float>(sf::Mouse::getPosition(this->window).y));
-				std::vector<Coin> coinsToKeep;
-			for (auto& coin : this->coinsVector)
-			{	
-				if (coin.isMouseOver(this->mousePosition) && coin.checkPosition())
-				{	
-					this->player->addCoins(coin.getCoinValue());
-					this->ui->setCoinsText(this->player->getCoins());					
-				}
-				else
-				{
-					coinsToKeep.push_back(coin);
-				}
-			}
-			this->coinsVector.swap(coinsToKeep);
-			click_processed = true;
-		}		 
-	}
-	else
-	{
-		click_processed = false; 
+		coin.update(dt);
 	}
 }
 
 //private rendering functions
 void Game::renderEnemy()
 {
-	if(!this->playDeathAnimation && !this->bossActive)
+	if (m_state.phase == Phase::Fighting)
 	{
-		this->enemy->render(this->window);
-	}
-}
-
-void Game::renderBoss()
-{
-	if (this->bossActive && !playEscapeAnimation && !playDeathAnimation)
-	{
-		this->boss->render(this->window);
+		m_enemyView.render(m_window);
 	}
 }
 
 void Game::renderAnimator()
 {
-	this->animator->render(this->window, this->playDeathAnimation, this->playEscapeAnimation,
-		this->playCoinAnimation);
+	if (m_state.phase == Phase::Dying)
+	{
+		m_deathAnimation.draw(m_window);
+	}
+	if (m_state.phase == Phase::Escaping)
+	{
+		m_smokeAnimation.draw(m_window);
+	}
 }
 
 void Game::renderBackground()
 {
-	this->window.draw(this->background);
+	m_window.draw(m_background);
 }
 
 void Game::renderCoins()
 {
-	for (Coin& coin : this->coinsVector)
+	for (Coin& coin : m_coinsVector)
 	{
-		coin.render(this->window);
+		coin.render(m_window);
 	}
 }
 
 void Game::renderUI()
 {
-	this->mousePosition = sf::Vector2f(static_cast<float>(sf::Mouse::getPosition(this->window).x),
-		static_cast<float>(sf::Mouse::getPosition(this->window).y));
-	this->ui->render(this->window, this->mousePosition, this->bossActive, this->playEscapeAnimation, 
-		this->playDeathAnimation);
+	m_mousePosition = sf::Vector2f(static_cast<float>(sf::Mouse::getPosition(m_window).x),
+		static_cast<float>(sf::Mouse::getPosition(m_window).y));
+
+	const float windowWidth = static_cast<float>(m_window.getSize().x);
+	const float enemyTop = m_enemyView.getGlobalBounds().position.y;
+
+	if (m_state.phase == Phase::Fighting)
+	{
+		m_hpBar.render(m_window, m_state.enemy, windowWidth, enemyTop);
+	}
+
+	m_hud.render(m_window, m_state, m_mousePosition);
+
+	if (isBossFight() && m_state.phase == Phase::Fighting)
+	{
+		m_bossCountdown.render(m_window, m_state.bossTimeLeft, windowWidth, enemyTop);
+	}
 }
 
 //constructor
-Game::Game(RNG& rng) : rng(rng), background(backgroundTexture)
+Game::Game(RNG& rng) :
+	m_rng(rng),
+	m_window(sf::VideoMode({800, 600}), "Clicker Game", sf::Style::Close | sf::Style::Titlebar),
+	m_state(rules::startingState()),
+	m_font("fonts/arial.ttf"),
+	m_enemyView(*m_state.enemy.type, m_rng, m_textures),
+	m_hud(m_font, m_state.player),
+	m_bossCountdown(m_font),
+	m_smokeAnimation(m_textures),
+	m_background(m_textures.get("textures/backgrounds/beach.png"))
 {
-	this->initWindow();
-	this->initBackground();
-	this->initEnemy();
-	this->initBoss();
-	this->initPlayer();
-	this->initCoins();
-	this->initAnimator();
-	this->initUI();
-}
+	centreEnemy();
 
-//deconstructor
-Game::~Game()
-{
-	delete this->player;
-	delete this->enemy;
-	delete this->boss;
-	delete this->ui;
+	m_frameClock.restart();
 }
 
 //getters
 const sf::RenderWindow& Game::getWindow() const
 {
-	return this->window;
+	return m_window;
 }
 
 //public functions
 void Game::update()
 {
-	this->polledEvents();
-	this->updateCombat();
-	this->updateAnimator();
-	this->updateCoins();
-	this->updateUI();
+	const float dt = m_frameClock.restart().asSeconds();
+
+	polledEvents();
+	updateCombat(dt);
+	updateAnimator(dt);
+	updateCoins(dt);
 }
 
 void Game::render()
 {
-	this->window.clear();
+	m_window.clear();
 
 	//draw game
-	this->renderBackground();
-	this->renderEnemy();
-	this->renderBoss();
-	this->renderAnimator();
-	this->renderCoins();
+	renderBackground();
+	renderEnemy();
+	renderAnimator();
+	renderCoins();
 
 	//draw ui
-	this->renderUI();
+	renderUI();
 
-	this->window.display();
+	m_window.display();
 }
