@@ -2,11 +2,12 @@
 #include "entities/Coin.h"
 
 //private functions
-void Coin::initVariables(const sf::Vector2u& targetSize)
-{	
+void Coin::initVariables(RNG& rng, const sf::Vector2u& targetSize)
+{
 	m_coinValue = 1.0;
-	m_endPoint = sf::Vector2f(static_cast<float>(m_rng.generateRandomNum(20, 
-		targetSize.x - m_sprite.getGlobalBounds().size.x - 20)),
+	m_pickupDelay = 0.3f;
+	m_endPoint = sf::Vector2f(static_cast<float>(rng.generateRandomNum(20,
+		static_cast<int>(targetSize.x - m_sprite.getGlobalBounds().size.x - 20))),
 		static_cast<float>(targetSize.y) - 150.f);
 }
 
@@ -64,6 +65,7 @@ void Coin::initAnimation()
 {
 	m_animationEnded = false;
 	m_timeElapsed = 0.f;
+	m_age = 0.f;
 }
 
 void Coin::updateLocation(float dt)
@@ -96,10 +98,10 @@ void Coin::updateLocation(float dt)
 //constructor
 Coin::Coin(RNG& rng, const sf::Vector2u& targetSize, const sf::Texture& texture,
 	sf::Vector2f startPoint)
-	: m_sprite(texture), m_rng(rng), m_startPoint(startPoint)
+	: m_sprite(texture), m_startPoint(startPoint)
 {
 	initSprite();
-	initVariables(targetSize);
+	initVariables(rng, targetSize);
 	initControlPoint();
 	initAnimationSpeed();
 	initDistanceToTravel();
@@ -108,7 +110,7 @@ Coin::Coin(RNG& rng, const sf::Vector2u& targetSize, const sf::Texture& texture,
 }
 
 //getters
-double Coin::getCoinValue()
+double Coin::getCoinValue() const
 {
 	return m_coinValue;
 }
@@ -119,22 +121,19 @@ sf::Vector2f Coin::getPosition()
 }
 
 //public functions
-bool Coin::isMouseOver(const sf::Vector2f& mousePos)
+bool Coin::isMouseOver(const sf::Vector2f& mousePos) const
 {
 	return m_sprite.getGlobalBounds().contains(mousePos);
 }
 
-bool Coin::checkPosition()
+bool Coin::isCollectable() const
 {
-	if (m_sprite.getPosition() == m_endPoint)
-	{
-		return true;
-	}
-	return false;
+	return m_age >= m_pickupDelay;
 }
 
 void Coin::update(float dt)
 {
+	m_age += dt;
 	updateLocation(dt);
 }
 

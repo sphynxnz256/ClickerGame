@@ -23,14 +23,13 @@ C++17 clicker game using SFML 3.1.0. A solo, learning-focused project, being tur
 - Prefer one file per job, as long as that isn't over-engineering.
 - Naming: PascalCase types; camelCase functions, parameters and locals; `m_` + camelCase members (`m_hpMax`); no `this->`. Tabs, short `//` comments.
 - Add new `.cpp` files to `add_executable` in `CMakeLists.txt`.
+- Standard library and SFML headers go in `src/stdafx.h` (the precompiled header), never as `#include <...>` in individual files.
 - Build with `cmake --build build --config Debug`, and leave no new warnings.
 
-## Current work: decoupling refactor
-- Follow `docs/refactor-plan.md`, one step at a time, one commit per step. The game must look and play exactly the same, with no new features.
-- Progress (2026-11-16): steps 0–7 are done and committed. Step 8 (events) is deferred, see `docs/decisions.md`. Step 9 (views read state) is implemented but not yet verified or committed. Step 10 is next after that.
-- Use subagents to carry out steps, with you as the controller to keep your context clean. Use cheaper models when a task doesn't need the best one. You run the builds and tests yourself, not the subagents. Run steps one at a time, not in parallel.
+## Current work
+- The decoupling refactor (`docs/refactor-plan.md`) is finished and merged. Step 8 (events) was deferred, see `docs/decisions.md`.
+- Keep using one subagent per task with you as the controller, to keep your context clean. Use cheaper models when a task doesn't need the best one. You run the builds and tests yourself, not the subagents. Run tasks one at a time, not in parallel.
 
-## Later, not in this refactor
+## Later
 - Levels and a larger upgrade system.
-- Coin pickup by mouse-over instead of clicking. Ideas: auto-collect after a few seconds, and pickup radius or magnet as upgrades.
 - Possibly move content to JSON once the game gets bigger.

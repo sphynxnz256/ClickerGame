@@ -7,10 +7,11 @@ class Coin
 private:
 	//private variables
 	sf::Sprite m_sprite;
-	RNG& m_rng;
 	double m_coinValue;
 
 	float m_timeElapsed;
+	float m_age; //seconds since spawn
+	float m_pickupDelay; //seconds after spawning before the coin can be collected
 	float m_frameDuration;
 
 	sf::Vector2f m_startPoint;
@@ -22,7 +23,7 @@ private:
 	bool m_animationFirstFrame;
 
 	//private functions
-	void initVariables(const sf::Vector2u& targetSize);
+	void initVariables(RNG& rng, const sf::Vector2u& targetSize);
 	void initSprite();
 	void initControlPoint();
 	void initAnimationSpeed();
@@ -36,12 +37,12 @@ public:
 		sf::Vector2f startPoint);
 
 	//getters
-	double getCoinValue();
+	double getCoinValue() const;
 	sf::Vector2f getPosition();
 
 	//public functions
-	bool isMouseOver(const sf::Vector2f& mousePos);
-	bool checkPosition();
+	bool isMouseOver(const sf::Vector2f& mousePos) const;
+	bool isCollectable() const;
 
 	void update(float dt);
 	void render(sf::RenderTarget& target);

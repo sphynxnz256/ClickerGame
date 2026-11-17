@@ -99,7 +99,8 @@ Design decisions for ClickerGame: what was chosen, the alternatives, why, and my
 - **Why:** One source for the first enemy, so the view and the state can't disagree. It also removes the throwaway second texture pick at startup.
 - **My thinking:** Picking a texture twice looked like bad design to me, so I chose to fix it, not leave it as a minor wart.
 
-## Future: coin pickup on mouse-over (2026-11-13)
-- **Chose:** For after the refactor, collect coins on mouse-over instead of clicking.
-- **Why:** Clicking each coin felt slow. Possible upgrades include auto-collect, pickup radius and a magnet.
-- **My thinking:** Originally I wanted each coin clicked individually, because I thought it would be more interactive. In practice it makes the game feel slower and annoying. Picking coins up on mouse-over is something to change in a later session, not this refactor.
+## Coins collected by mouse-over, after a short delay (2026-11-17)
+- **Chose:** Each frame, `updateCoins` moves each coin and collects it if it is collectable and the cursor is over it. A coin becomes collectable a fixed time after it spawns (`m_pickupDelay`, a private `Coin` member set in `initVariables()`), so it can be caught in flight. The mouse position is polled once per frame in `update()`.
+- **Instead of:** Collecting on click, `MouseMoved` events, a separate pass over the coins, collecting in the draw loop, a spatial grid, or letting a coin be collected the moment it spawns.
+- **Why:** Polling also collects a coin that lands under a still mouse, which events would miss. The coin loop already visits every coin each frame, so the hover check adds no extra pass; a grid wouldn't help while coins move and there are only tens of them. The player holds the mouse on the enemy's centre, which is where coins spawn, so without a delay every coin would be collected instantly. The delay is a named tuning value, not a hard-coded number.
+- **My thinking:** I want to catch coins in flight, but not instantly at the spawn point. If the delay can't be made to feel right, drop it and make coins collectable only once landed.
