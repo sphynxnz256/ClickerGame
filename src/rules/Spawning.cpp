@@ -2,10 +2,7 @@
 #include "rules/Spawning.h"
 #include "content/EnemyTypes.h"
 
-namespace
-{
-	const int killsPerBoss = 10;
-}
+const int killsPerBoss = 10;
 
 namespace rules
 {

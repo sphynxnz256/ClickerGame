@@ -7,14 +7,17 @@ class SmokeAnimation
 {
 private:
 	//private variables
-	static constexpr float m_frameDuration = 0.05f;
-	static constexpr int m_frameSize = 150;
-	static constexpr int m_lastFrameX = 1050;
-
 	sf::Sprite m_sprite;
 	sf::IntRect m_currentFrame;
-	float m_timeElapsed = 0.f;
-	bool m_finished = false;
+	float m_timeElapsed;
+	float m_frameDuration;
+	int m_frameSize;
+	int m_lastFrameX;
+	bool m_finished;
+
+	//private initiation functions
+	void initVariables();
+	void initSprite();
 
 public:
 	//constructor
