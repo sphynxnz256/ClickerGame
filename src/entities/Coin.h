@@ -15,19 +15,23 @@ private:
 	float m_frameDuration;
 
 	sf::Vector2f m_startPoint;
-	sf::Vector2f m_endPoint;
-	sf::Vector2f m_controlPoint;
-	float m_animationSpeed;
-	float m_distanceToTravel;
+	sf::Vector2f m_launchPosition;
+	sf::Vector2f m_velocity;
+	float m_flightTime;
 	bool m_animationEnded;
 	bool m_animationFirstFrame;
 
+	//launch tuning
+	float m_gravity; //px/s^2
+	int m_minLaunchSpeed; //px/s
+	int m_maxLaunchSpeed; //px/s
+	int m_minLaunchAngle; //degrees from flat right, 90 = straight up
+	int m_maxLaunchAngle;
+
 	//private functions
-	void initVariables(RNG& rng, const sf::Vector2u& targetSize);
+	void initVariables();
 	void initSprite();
-	void initControlPoint();
-	void initAnimationSpeed();
-	void initDistanceToTravel();
+	void initLaunch(RNG& rng, const sf::Vector2u& targetSize);
 	void initAnimation();
 	void updateLocation(float dt);
 

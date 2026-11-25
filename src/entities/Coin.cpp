@@ -2,13 +2,18 @@
 #include "entities/Coin.h"
 
 //private functions
-void Coin::initVariables(RNG& rng, const sf::Vector2u& targetSize)
+void Coin::initVariables()
 {
 	m_coinValue = 1.0;
 	m_pickupDelay = 0.3f;
-	m_endPoint = sf::Vector2f(static_cast<float>(rng.generateRandomNum(20,
-		static_cast<int>(targetSize.x - m_sprite.getGlobalBounds().size.x - 20))),
-		static_cast<float>(targetSize.y) - 150.f);
+
+	//these ranges were checked so coins never leave the screen, assuming an
+	//800x600 window, the enemy centred and a 56 px coin; recheck if any change
+	m_gravity = 2200.f;
+	m_minLaunchSpeed = 450;
+	m_maxLaunchSpeed = 650;
+	m_minLaunchAngle = 45;
+	m_maxLaunchAngle = 135;
 }
 
 void Coin::initSprite()
@@ -18,47 +23,24 @@ void Coin::initSprite()
 		m_startPoint.y - m_sprite.getGlobalBounds().size.y / 2));
 }
 
-void Coin::initControlPoint()
+void Coin::initLaunch(RNG& rng, const sf::Vector2u& targetSize)
 {
-	//set the control point so its on the same side as the coin ends up on
-	if (m_endPoint.x > 400.f)
-	{
-		m_controlPoint = sf::Vector2f(600.f, 200.f);
-	}
-	else
-	{
-		m_controlPoint = sf::Vector2f(200.f, 200.f);
-	}
-}
+	m_launchPosition = m_sprite.getPosition();
 
-void Coin::initAnimationSpeed()
-{
-	//smooth the speed out relative to the center
-	if (m_endPoint.x < 100.f || m_endPoint.x > 700.f)
-	{
-		m_animationSpeed = 600.f;
-	}
-	else if (m_endPoint.x < 200.f || m_endPoint.x > 600.f)
-	{
-		m_animationSpeed = 500.f;
-	}
-	else if (m_endPoint.x < 300.f || m_endPoint.x > 500.f)
-	{
-		m_animationSpeed = 400.f;
-	}
-	else
-	{
-		m_animationSpeed = 300.f;
-	}
-}
+	//random launch speed and angle
+	int speed = rng.generateRandomNum(m_minLaunchSpeed, m_maxLaunchSpeed);
+	int angleDegrees = rng.generateRandomNum(m_minLaunchAngle, m_maxLaunchAngle);
+	float angle = sf::degrees(static_cast<float>(angleDegrees)).asRadians();
 
-void Coin::initDistanceToTravel()
-{
-	//calculate distance
-	m_distanceToTravel = std::sqrt((m_endPoint.x - m_startPoint.x) *
-		(m_endPoint.x - m_startPoint.x) +
-		(m_endPoint.y - m_startPoint.y) *
-		(m_endPoint.y - m_startPoint.y));
+	//negative y is up
+	m_velocity = sf::Vector2f(static_cast<float>(speed) * std::cos(angle),
+		-static_cast<float>(speed) * std::sin(angle));
+
+	//time for y(t) = launchY + vy * t + 0.5 * g * t^2 to reach the floor
+	float floorY = static_cast<float>(targetSize.y) - 150.f;
+	float drop = floorY - m_launchPosition.y;
+	m_flightTime = (-m_velocity.y + std::sqrt(m_velocity.y * m_velocity.y +
+		2.f * m_gravity * drop)) / m_gravity;
 }
 
 void Coin::initAnimation()
@@ -72,26 +54,20 @@ void Coin::updateLocation(float dt)
 {
 	if (!m_animationEnded)
 	{
-		//plays animation of coin dropping from killed enemy
+		//plays animation of coin flying out of killed enemy
 		m_timeElapsed += dt;
 
-		//calculate progress based on speed
-		float progress = (m_timeElapsed * m_animationSpeed) /
-			m_distanceToTravel;
-
-
-		//check if animation is finished
-		if (progress >= 1.f)
+		//stop on the floor
+		if (m_timeElapsed >= m_flightTime)
 		{
-			progress = 1.f;
+			m_timeElapsed = m_flightTime;
 			m_animationEnded = true;
 		}
 
-		//calc bezier interpilation
-		sf::Vector2f position = (1 - progress) * (1 - progress) * m_startPoint +
-			2 * (1 - progress) * progress * m_controlPoint +
-			progress * progress * m_endPoint;
-		m_sprite.setPosition(position);
+		//projectile motion
+		float t = m_timeElapsed;
+		m_sprite.setPosition(sf::Vector2f(m_launchPosition.x + m_velocity.x * t,
+			m_launchPosition.y + m_velocity.y * t + 0.5f * m_gravity * t * t));
 	}
 }
 
@@ -101,10 +77,8 @@ Coin::Coin(RNG& rng, const sf::Vector2u& targetSize, const sf::Texture& texture,
 	: m_sprite(texture), m_startPoint(startPoint)
 {
 	initSprite();
-	initVariables(rng, targetSize);
-	initControlPoint();
-	initAnimationSpeed();
-	initDistanceToTravel();
+	initVariables();
+	initLaunch(rng, targetSize);
 	initAnimation();
 	
 }
