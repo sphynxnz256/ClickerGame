@@ -1,6 +1,6 @@
 #pragma once
 
-#include "content/EnemyTypes.h"
+#include "content/EnemyData.h"
 #include "view/EnemyView.h"
 #include "rules/Combat.h"
 #include "rules/Upgrades.h"

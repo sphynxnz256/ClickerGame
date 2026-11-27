@@ -110,3 +110,26 @@ Design decisions for ClickerGame: what was chosen, the alternatives, why, and my
 - **Instead of:** The quadratic Bezier curve to a random landing spot, a Bezier with a corrected control point, per-frame physics that adds velocity each frame, or choosing the landing spot first.
 - **Why:** The sideways movement has one direction, so the path can never curve back on itself. The ranges were checked over every whole-number speed and angle with the 800x600 window, the enemy centred and a coin 56 px wide: the farthest landing is 304 px from the centre against 352 px of room, the highest rise is 96 px, and flights last 0.57-0.79 s. Tuned from a first set (350-550 px/s, 30-150 degrees, 1800 px/s^2) after play-testing, to get a higher arc and a slightly quicker flight. Choosing the launch (not the landing spot) gives different arcs for different coins. No clamp is needed, and there is no bounce.
 - **My thinking:** Forcing a landing spot might not look good with projectile motion, so I chose to randomise the launch angle and speed instead, with ranges picked so coins never leave the screen or hit its sides. If the window size, the enemy position or the coin size changes, the ranges need rechecking.
+
+## Kills before the boss live on the boss's type (2026-11-27)
+- **Chose:** `EnemyType::killsToSpawn` (10 on `content::boss`, 0 on the regular enemy). `rules::finishDeath` reads it from `content::boss`.
+- **Instead of:** A file-level `killsPerBoss` constant in `Spawning.cpp`, or a value in `GameState`.
+- **Why:** It is data about the boss, so it sits with the boss like `timeLimit` does, and a different boss can have its own number later. It is not state, because it never changes while playing.
+
+## Coins are built in place with emplace_back (2026-11-27)
+- **Chose:** `m_coinsVector.emplace_back(...)` in `Game::dropCoins`, passing the `Coin` constructor arguments.
+- **Instead of:** Building a temporary `Coin` and copying it in (the old code), or `push_back(Coin(...))`.
+- **Why:** `emplace_back` constructs the coin directly inside the vector, so there is exactly one `Coin` and no copy or move. It is the standard C++11 idiom for adding a new element.
+- **My thinking:** There should be only one instance of one coin, never several copies of the same coin.
+
+## EnemyTypes.h renamed to EnemyData.h (2026-11-27)
+- **Chose:** `content/EnemyData.h` for the enemy objects (`content::regularEnemy`, `content::boss`). `EnemyType.h` keeps the struct definition.
+- **Instead of:** Keeping `EnemyTypes.h`, which differs from `EnemyType.h` by one letter.
+- **Why:** The two files do different jobs (the shape of an enemy vs the actual enemies), and names that differ by one letter were easy to confuse.
+- **My thinking:** I kept mixing the two files up.
+
+## Enemy data: one value per line with field-name comments (2026-11-27)
+- **Chose:** In `EnemyData.h`, each value of an `EnemyType` goes on its own line with a `//fieldName` comment. The language stays C++17.
+- **Instead of:** C++20 designated initializers (`.hpMax = 250.0`), or assigning the fields by name in a helper function.
+- **Why:** The positional values were hard to match to the struct's fields. Designated initializers would make the names checked by the compiler, but they need `CMAKE_CXX_STANDARD` moved from 17 to 20, a project-wide change that is more than this problem needs. The comments are not checked by the compiler, so if the struct's fields are reordered the comments must be updated by hand.
+- **My thinking:** Moving the whole project to C++20 was more than I intended to change, so the comments will do.

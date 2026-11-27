@@ -83,8 +83,8 @@ void Game::dropCoins(int coinCount, sf::Vector2f coinStart)
 {
 	for (int i = 0; i < coinCount; i++)
 	{
-		Coin tempCoin(m_rng, m_window.getSize(), m_textures.get("textures/coin.png"), coinStart);
-		m_coinsVector.push_back(Coin(tempCoin));
+		//built in place inside the vector, so there is only one Coin
+		m_coinsVector.emplace_back(m_rng, m_window.getSize(), m_textures.get("textures/coin.png"), coinStart);
 	}
 }
 

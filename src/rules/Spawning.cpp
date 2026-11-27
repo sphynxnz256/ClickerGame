@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "rules/Spawning.h"
-#include "content/EnemyTypes.h"
-
-const int killsPerBoss = 10;
+#include "content/EnemyData.h"
 
 namespace rules
 {
@@ -30,8 +28,8 @@ namespace rules
 		{
 			state.killCount++;
 
-			//every tenth kill spawns the boss
-			if (state.killCount >= killsPerBoss)
+			//enough kills spawn the boss
+			if (state.killCount >= content::boss.killsToSpawn)
 			{
 				state.killCount = 0;
 				spawnEnemy(state, content::boss);

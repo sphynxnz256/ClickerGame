@@ -12,14 +12,12 @@ private:
 	float m_timeElapsed;
 	float m_age; //seconds since spawn
 	float m_pickupDelay; //seconds after spawning before the coin can be collected
-	float m_frameDuration;
 
 	sf::Vector2f m_startPoint;
 	sf::Vector2f m_launchPosition;
 	sf::Vector2f m_velocity;
 	float m_flightTime;
 	bool m_animationEnded;
-	bool m_animationFirstFrame;
 
 	//launch tuning
 	float m_gravity; //px/s^2
