@@ -10,6 +10,7 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 

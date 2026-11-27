@@ -99,7 +99,14 @@ Design decisions for ClickerGame: what was chosen, the alternatives, why, and my
 - **Why:** One source for the first enemy, so the view and the state can't disagree. It also removes the throwaway second texture pick at startup.
 - **My thinking:** Picking a texture twice looked like bad design to me, so I chose to fix it, not leave it as a minor wart.
 
-## Future: coin pickup on mouse-over (2026-11-13)
-- **Chose:** For after the refactor, collect coins on mouse-over instead of clicking.
-- **Why:** Clicking each coin felt slow. Possible upgrades include auto-collect, pickup radius and a magnet.
-- **My thinking:** Originally I wanted each coin clicked individually, because I thought it would be more interactive. In practice it makes the game feel slower and annoying. Picking coins up on mouse-over is something to change in a later session, not this refactor.
+## Coins collected by mouse-over, after a short delay (2026-11-17)
+- **Chose:** Each frame, `updateCoins` moves each coin and collects it if it is collectable and the cursor is over it. A coin becomes collectable a fixed time after it spawns (`m_pickupDelay`, a private `Coin` member set in `initVariables()`), so it can be caught in flight. The mouse position is polled once per frame in `update()`.
+- **Instead of:** Collecting on click, `MouseMoved` events, a separate pass over the coins, collecting in the draw loop, a spatial grid, or letting a coin be collected the moment it spawns.
+- **Why:** Polling also collects a coin that lands under a still mouse, which events would miss. The coin loop already visits every coin each frame, so the hover check adds no extra pass; a grid wouldn't help while coins move and there are only tens of them. The player holds the mouse on the enemy's centre, which is where coins spawn, so without a delay every coin would be collected instantly. The delay is a named tuning value, not a hard-coded number.
+- **My thinking:** I want to catch coins in flight, but not instantly at the spawn point. If the delay can't be made to feel right, drop it and make coins collectable only once landed.
+
+## Coins fly as projectiles with a random launch (2026-11-25)
+- **Chose:** Each coin gets a random launch speed (450-650 px/s) and angle (45-135 degrees) and is pulled down by gravity (2200 px/s^2). Its position is a formula of elapsed time: x = startX + vx * t and y = startY + vy * t + 0.5 * g * t^2. It stops on the floor line, and where it lands is a result of the launch.
+- **Instead of:** The quadratic Bezier curve to a random landing spot, a Bezier with a corrected control point, per-frame physics that adds velocity each frame, or choosing the landing spot first.
+- **Why:** The sideways movement has one direction, so the path can never curve back on itself. The ranges were checked over every whole-number speed and angle with the 800x600 window, the enemy centred and a coin 56 px wide: the farthest landing is 304 px from the centre against 352 px of room, the highest rise is 96 px, and flights last 0.57-0.79 s. Tuned from a first set (350-550 px/s, 30-150 degrees, 1800 px/s^2) after play-testing, to get a higher arc and a slightly quicker flight. Choosing the launch (not the landing spot) gives different arcs for different coins. No clamp is needed, and there is no bounce.
+- **My thinking:** Forcing a landing spot might not look good with projectile motion, so I chose to randomise the launch angle and speed instead, with ranges picked so coins never leave the screen or hit its sides. If the window size, the enemy position or the coin size changes, the ranges need rechecking.

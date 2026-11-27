@@ -12,7 +12,7 @@ C++17 clicker game using SFML 3.1.0. A solo, learning-focused project, being tur
 - `docs/refactor-plan.md` and `docs/decisions.md` are tracked project records (our plan and decisions). Never commit them as their own commit. Stage them together with the code change of the step they belong to.
 
 ## How to work with me
-- Work autonomously: make the routine decisions and get the code working. Don't ask me to approve every edit.
+- Plan first, then wait for my explicit "go" before changing any code, creating branches or spawning subagents. Once I say go, work autonomously: make the routine decisions and get the code working. Don't ask me to approve every edit.
 - **Any design decision we haven't already discussed:** ask me before deciding, not after. I want to understand it, and choose if I don't like your option. Ask in plain chat, not with the question-popup tool, so I can ask follow-ups.
 - After each step, stop and give a **short** explanation focused on the decisions and why, plus the alternatives you didn't take. No line-by-line walkthroughs or long rename lists. Use clickable file:line links.
 - Record every agreed decision about the game's design and code in `docs/decisions.md` (Chose / Instead of / Why). Not admin or workflow things like git, PRs or how we work together; those go in this file.
@@ -21,16 +21,16 @@ C++17 clicker game using SFML 3.1.0. A solo, learning-focused project, being tur
 ## Code quality
 - Best practice but minimal. Don't over-engineer. No shortcuts from YouTube or beginner tutorials.
 - Prefer one file per job, as long as that isn't over-engineering.
+- Follow the conventions already in the code. Don't introduce a new convention or language feature (e.g. namespaces, `static constexpr` members) without asking me first, and don't call something an existing pattern unless it was in the code before the refactor. Per-object values are plain private members set in `initVariables()`.
 - Naming: PascalCase types; camelCase functions, parameters and locals; `m_` + camelCase members (`m_hpMax`); no `this->`. Tabs, short `//` comments.
 - Add new `.cpp` files to `add_executable` in `CMakeLists.txt`.
+- Standard library and SFML headers go in `src/stdafx.h` (the precompiled header), never as `#include <...>` in individual files.
 - Build with `cmake --build build --config Debug`, and leave no new warnings.
 
-## Current work: decoupling refactor
-- Follow `docs/refactor-plan.md`, one step at a time, one commit per step. The game must look and play exactly the same, with no new features.
-- Progress (2026-11-16): steps 0–7 are done and committed. Step 8 (events) is deferred, see `docs/decisions.md`. Step 9 (views read state) is implemented but not yet verified or committed. Step 10 is next after that.
-- Use subagents to carry out steps, with you as the controller to keep your context clean. Use cheaper models when a task doesn't need the best one. You run the builds and tests yourself, not the subagents. Run steps one at a time, not in parallel.
+## Current work
+- The decoupling refactor (`docs/refactor-plan.md`) is finished and merged. Step 8 (events) was deferred, see `docs/decisions.md`.
+- Keep using one subagent per task with you as the controller, to keep your context clean. Use cheaper models when a task doesn't need the best one. You run the builds and tests yourself, not the subagents. Run tasks one at a time, not in parallel.
 
-## Later, not in this refactor
+## Later
 - Levels and a larger upgrade system.
-- Coin pickup by mouse-over instead of clicking. Ideas: auto-collect after a few seconds, and pickup radius or magnet as upgrades.
 - Possibly move content to JSON once the game gets bigger.

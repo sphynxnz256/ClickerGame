@@ -5,12 +5,17 @@ class DeathAnimation
 {
 private:
 	//private variables
-	static constexpr float m_shrinkSpeed = 10.f;
-
 	std::optional<sf::Sprite> m_sprite;
-	bool m_finished = false;
+	float m_shrinkSpeed;
+	bool m_finished;
+
+	//private initiation functions
+	void initVariables();
 
 public:
+	//constructor
+	DeathAnimation();
+
 	//getters
 	bool isFinished() const;
 

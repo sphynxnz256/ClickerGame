@@ -3,6 +3,19 @@
 
 /*the death animation shrinks the killed enemy to nothing*/
 
+//private initiation functions
+void DeathAnimation::initVariables()
+{
+	m_shrinkSpeed = 10.f;
+	m_finished = false;
+}
+
+//constructor
+DeathAnimation::DeathAnimation()
+{
+	initVariables();
+}
+
 //getters
 bool DeathAnimation::isFinished() const
 {

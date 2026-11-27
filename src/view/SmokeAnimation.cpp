@@ -3,13 +3,29 @@
 
 /*the smoke animation plays a puff of smoke when a boss escapes*/
 
-//constructor
-SmokeAnimation::SmokeAnimation(TextureCache& textures)
-	: m_sprite(textures.get("textures/smoke_sheet.png")),
-	m_currentFrame({0, 0}, {m_frameSize, m_frameSize})
+//private initiation functions
+void SmokeAnimation::initVariables()
 {
+	m_timeElapsed = 0.f;
+	m_frameDuration = 0.05f;
+	m_frameSize = 150;
+	m_lastFrameX = 1050;
+	m_finished = false;
+}
+
+void SmokeAnimation::initSprite()
+{
+	m_currentFrame = sf::IntRect({0, 0}, {m_frameSize, m_frameSize});
 	m_sprite.setTextureRect(m_currentFrame);
 	m_sprite.setScale({2.f, 2.f});
+}
+
+//constructor
+SmokeAnimation::SmokeAnimation(TextureCache& textures)
+	: m_sprite(textures.get("textures/smoke_sheet.png"))
+{
+	initVariables();
+	initSprite();
 }
 
 //getters

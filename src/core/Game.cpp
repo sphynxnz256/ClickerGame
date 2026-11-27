@@ -41,27 +41,6 @@ void Game::handleClick(sf::Vector2f clickPos)
 		return;
 	}
 
-	//collect any coins under the click
-	bool collected = false;
-	std::vector<Coin> coinsToKeep;
-	for (auto& coin : m_coinsVector)
-	{
-		if (coin.isMouseOver(clickPos) && coin.checkPosition())
-		{
-			rules::collectCoin(m_state.player, coin.getCoinValue());
-			collected = true;
-		}
-		else
-		{
-			coinsToKeep.push_back(coin);
-		}
-	}
-	m_coinsVector.swap(coinsToKeep);
-	if (collected)
-	{
-		return;
-	}
-
 	//attack the enemy
 	if (m_state.phase == Phase::Fighting && m_enemyView.getGlobalBounds().contains(clickPos))
 	{
@@ -174,6 +153,20 @@ void Game::updateCoins(float dt)
 	{
 		coin.update(dt);
 	}
+
+	//coins are collected by hovering, only while the window has focus
+	const bool hasFocus = m_window.hasFocus();
+	const auto newEnd = std::remove_if(m_coinsVector.begin(), m_coinsVector.end(),
+		[&](const Coin& coin)
+		{
+			if (hasFocus && coin.isCollectable() && coin.isMouseOver(m_mousePosition))
+			{
+				rules::collectCoin(m_state.player, coin.getCoinValue());
+				return true;
+			}
+			return false;
+		});
+	m_coinsVector.erase(newEnd, m_coinsVector.end());
 }
 
 //private rendering functions
@@ -212,9 +205,6 @@ void Game::renderCoins()
 
 void Game::renderUI()
 {
-	m_mousePosition = sf::Vector2f(static_cast<float>(sf::Mouse::getPosition(m_window).x),
-		static_cast<float>(sf::Mouse::getPosition(m_window).y));
-
 	const float windowWidth = static_cast<float>(m_window.getSize().x);
 	const float enemyTop = m_enemyView.getGlobalBounds().position.y;
 
@@ -258,6 +248,9 @@ const sf::RenderWindow& Game::getWindow() const
 void Game::update()
 {
 	const float dt = m_frameClock.restart().asSeconds();
+
+	//mouse position is polled once per frame
+	m_mousePosition = sf::Vector2f(sf::Mouse::getPosition(m_window));
 
 	polledEvents();
 	updateCombat(dt);
